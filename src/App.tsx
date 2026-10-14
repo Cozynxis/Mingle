@@ -16,6 +16,7 @@ function Auth({onClose}:{onClose:()=>void}) {
   const [busy,setBusy]=useState(false);
   const [showPassword,setShowPassword]=useState(false);
   const [resending,setResending]=useState(false);
+  const [otp,setOtp]=useState("");
   const redirectTo=window.location.origin+"/Mingle/";
   function changeMode(next:typeof mode){setMode(next);setError("");setSuccess("")}
   async function submit(e:FormEvent){
@@ -31,13 +32,24 @@ function Auth({onClose}:{onClose:()=>void}) {
         const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name.trim()},emailRedirectTo:redirectTo}});
         if(error)throw error;
         if(data.session){onClose();return}
-        changeMode("verify");
+        setOtp("");changeMode("verify");
       }else if(mode==="login"){
         const {error}=await supabase.auth.signInWithPassword({email,password});
         if(error)throw error;
         onClose();
       }
     }catch(e){setError(e instanceof Error?e.message:"Er ging iets mis. Probeer opnieuw.")}finally{setBusy(false)}
+  }
+  async function verifyCode(e:FormEvent){
+    e.preventDefault();
+    if(!supabase||busy||!/^[0-9]{6}$/.test(otp))return;
+    setBusy(true);setError("");setSuccess("");
+    try{
+      const {error}=await supabase.auth.verifyOtp({email:email.trim(),token:otp,type:"signup"});
+      if(error)throw error;
+      onClose();
+    }catch(e){setError(e instanceof Error?e.message:"De code is ongeldig of verlopen.");}
+    finally{setBusy(false)}
   }
   async function resend(){
     if(!supabase||resending)return;
@@ -57,13 +69,13 @@ function Auth({onClose}:{onClose:()=>void}) {
     {mode==="verify"?<div className="verify-panel">
       <div className="verify-icon"><Mail size={31}/></div>
       <h2>Bevestig je e-mailadres</h2>
-      <p>Je registratie is ontvangen! We hebben een bevestigingslink aangevraagd voor <strong>{email}</strong>.</p>
-      <p className="muted">Open de mail en klik op de link. Daarna kom je terug naar Mingle en kun je inloggen. Controleer ook je spamfolder.</p>
+      <p>Vul de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd.</p>
+      <p className="muted">Controleer ook je spamfolder. De code is tijdelijk geldig.</p>
       {success&&<p className="success" role="status">{success}</p>}
       {error&&<p className="error" role="alert">{error}</p>}
-      <button className="primary wide" onClick={()=>changeMode("login")}>Ik heb mijn e-mail bevestigd <ArrowRight size={17}/></button>
+      <form onSubmit={verifyCode}><label className="otp-label" htmlFor="mingle-otp">Verificatiecode</label><input id="mingle-otp" className="otp-input" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" placeholder="000000" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} required/><button className="primary wide" disabled={busy||otp.length!==6} type="submit">{busy?"Controleren...":"Account bevestigen"} <ArrowRight size={17}/></button></form>
       <button className="google" disabled={resending} onClick={resend}>{resending?"Versturen...":"Bevestigingsmail opnieuw sturen"}</button>
-      <button className="auth-text-button" onClick={()=>changeMode("signup")}>Ander e-mailadres gebruiken</button>
+      <button className="auth-text-button" onClick={()=>changeMode("login")}>Terug naar inloggen</button><button className="auth-text-button" onClick={()=>changeMode("signup")}>Ander e-mailadres gebruiken</button>
     </div>:<>
       <h2>{mode==="login"?"Welkom terug":mode==="signup"?"Maak je account aan":"Wachtwoord herstellen"}</h2>
       <p className="muted">{mode==="login"?"Log in om verder te gaan met Mingle.":mode==="signup"?"Word onderdeel van de community.":"We sturen je een link om je wachtwoord te herstellen."}</p>
