@@ -6,13 +6,83 @@ import type { Session } from "@supabase/supabase-js";
 type Theme = "dark" | "light" | "system";
 const navigation = [{label:"Home",icon:Home},{label:"Explore",icon:Compass},{label:"Notifications",icon:Bell},{label:"Messages",icon:Mail},{label:"Communities",icon:Users},{label:"Bookmarks",icon:Bookmark},{label:"Settings",icon:Settings}];
 function Brand(){return <div className="brand"><span className="brand-icon" aria-label="Mingle logo"><svg viewBox="0 0 64 64" aria-hidden="true" width="38" height="38"><rect x="0" y="0" width="64" height="64" rx="17" fill="#7385ff"/><path d="M12 44V24c0-9 12-9 12 0v20-20c0-9 12-9 12 0v20-20c0-9 12-9 12 0v20" fill="none" stroke="#fff" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span><strong>mingle<span className="brand-dot">.</span></strong></div>}
-function Auth({onClose}:{onClose:()=>void}){const [mode,setMode]=useState<"login"|"signup"|"reset">("login");const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [name,setName]=useState("");const [error,setError]=useState("");const [success,setSuccess]=useState("");const [busy,setBusy]=useState(false);
-async function submit(e:FormEvent){e.preventDefault();setError("");setSuccess("");if(!supabase){setError("Connect a Supabase project to enable accounts.");return}setBusy(true);try{if(mode==="reset"){const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/Mingle/"});if(error)throw error;setSuccess("Password reset email sent. Check your inbox.");}else if(mode==="signup"){const {error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:window.location.origin+"/Mingle/"}});if(error)throw error;setSuccess("Account created. Check your email to confirm your address.");}else{const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;else onClose()}}catch(e){setError(e instanceof Error?e.message:"Something went wrong")}finally{setBusy(false)}}
-async function google(){if(!supabase){setError("Connect a Supabase project first.");return}const {error}=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+"/Mingle/"}});if(error)setError(error.message)}
-return <div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><motion.section initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} className="auth-modal" role="dialog" aria-modal="true" aria-label="Account"><button className="close" onClick={onClose} aria-label="Close">×</button><Brand/><h2>{mode==="login"?"Welcome back":mode==="signup"?"Join Mingle":"Reset password"}</h2><p className="muted">{mode==="login"?"Good to see you again.":mode==="signup"?"Connect. Share. Discover.":"We'll email you a reset link."}</p><form onSubmit={submit}>{mode==="signup"&&<label>Display name<input required value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" maxLength={60}/></label>}<label>Email address<input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>{mode!=="reset"&&<label>Password<input type="password" minLength={6} required autoComplete={mode==="signup"?"new-password":"current-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Your password"/></label>}{error&&<p className="error" role="alert">{error}</p>}{success&&<p className="success" role="status">{success}</p>}<button disabled={busy} className="primary wide" type="submit">{busy?"Please wait...":mode==="login"?"Sign in":mode==="signup"?"Create account":"Send reset email"}</button></form>{mode!=="reset"&&<button className="google" onClick={google}>Continue with Google</button>}<div className="auth-links">{mode==="login"?<><button onClick={()=>setMode("signup")}>Create an account</button><button onClick={()=>setMode("reset")}>Forgot password?</button></>:<button onClick={()=>setMode("login")}>Back to sign in</button>}</div></motion.section></div>}
+function Auth({onClose}:{onClose:()=>void}) {
+  const [mode,setMode]=useState<"login"|"signup"|"reset"|"verify">("login");
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const [name,setName]=useState("");
+  const [error,setError]=useState("");
+  const [success,setSuccess]=useState("");
+  const [busy,setBusy]=useState(false);
+  const [showPassword,setShowPassword]=useState(false);
+  const [resending,setResending]=useState(false);
+  const redirectTo=window.location.origin+"/Mingle/";
+  function changeMode(next:typeof mode){setMode(next);setError("");setSuccess("")}
+  async function submit(e:FormEvent){
+    e.preventDefault();setError("");setSuccess("");
+    if(!supabase){setError("De verbinding met Supabase ontbreekt.");return}
+    setBusy(true);
+    try {
+      if(mode==="reset"){
+        const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
+        if(error)throw error;
+        setSuccess("We hebben een herstelmail aangevraagd. Controleer ook je spamfolder.");
+      }else if(mode==="signup"){
+        const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name.trim()},emailRedirectTo:redirectTo}});
+        if(error)throw error;
+        if(data.session){onClose();return}
+        changeMode("verify");
+      }else if(mode==="login"){
+        const {error}=await supabase.auth.signInWithPassword({email,password});
+        if(error)throw error;
+        onClose();
+      }
+    }catch(e){setError(e instanceof Error?e.message:"Er ging iets mis. Probeer opnieuw.")}finally{setBusy(false)}
+  }
+  async function resend(){
+    if(!supabase||resending)return;
+    setResending(true);setError("");setSuccess("");
+    try{const {error}=await supabase.auth.resend({type:"signup",email,options:{emailRedirectTo:redirectTo}});if(error)throw error;setSuccess("Nieuwe bevestigingsmail aangevraagd. Controleer ook spam.");}
+    catch(e){setError(e instanceof Error?e.message:"Opnieuw versturen is niet gelukt.")}
+    finally{setResending(false)}
+  }
+  async function google(){
+    if(!supabase){setError("De verbinding met Supabase ontbreekt.");return}
+    setError("");
+    const {error}=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
+    if(error)setError(error.message);
+  }
+  return <div className="overlay" role="presentation"><motion.section initial={{opacity:0,y:22,scale:.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:.28}} className="auth-modal" role="dialog" aria-modal="true" aria-label="Mingle account">
+    <div className="auth-brand"><Brand/><span className="auth-eyebrow">CONNECT · SHARE · DISCOVER</span></div>
+    {mode==="verify"?<div className="verify-panel">
+      <div className="verify-icon"><Mail size={31}/></div>
+      <h2>Bevestig je e-mailadres</h2>
+      <p>Je registratie is ontvangen! We hebben een bevestigingslink aangevraagd voor <strong>{email}</strong>.</p>
+      <p className="muted">Open de mail en klik op de link. Daarna kom je terug naar Mingle en kun je inloggen. Controleer ook je spamfolder.</p>
+      {success&&<p className="success" role="status">{success}</p>}
+      {error&&<p className="error" role="alert">{error}</p>}
+      <button className="primary wide" onClick={()=>changeMode("login")}>Ik heb mijn e-mail bevestigd <ArrowRight size={17}/></button>
+      <button className="google" disabled={resending} onClick={resend}>{resending?"Versturen...":"Bevestigingsmail opnieuw sturen"}</button>
+      <button className="auth-text-button" onClick={()=>changeMode("signup")}>Ander e-mailadres gebruiken</button>
+    </div>:<>
+      <h2>{mode==="login"?"Welkom terug":mode==="signup"?"Maak je account aan":"Wachtwoord herstellen"}</h2>
+      <p className="muted">{mode==="login"?"Log in om verder te gaan met Mingle.":mode==="signup"?"Word onderdeel van de community.":"We sturen je een link om je wachtwoord te herstellen."}</p>
+      <form onSubmit={submit}>
+        {mode==="signup"&&<label>Naam<input required value={name} onChange={e=>setName(e.target.value)} placeholder="Hoe mogen we je noemen?" maxLength={60}/></label>}
+        <label>E-mailadres<input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="jij@voorbeeld.nl"/></label>
+        {mode!=="reset"&&<label>Wachtwoord<div className="password-field"><input type={showPassword?"text":"password"} minLength={6} required autoComplete={mode==="signup"?"new-password":"current-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Minimaal 6 tekens"/><button type="button" onClick={()=>setShowPassword(!showPassword)} aria-label={showPassword?"Verberg wachtwoord":"Toon wachtwoord"}>{showPassword?"Verberg":"Toon"}</button></div></label>}
+        {error&&<p className="error" role="alert">{error}</p>}
+        {success&&<p className="success" role="status">{success}</p>}
+        <button disabled={busy} className="primary wide" type="submit">{busy?"Even wachten...":mode==="login"?"Inloggen":mode==="signup"?"Account aanmaken":"Herstellink versturen"} <ArrowRight size={17}/></button>
+      </form>
+      {mode!=="reset"&&<><div className="auth-divider"><span>of</span></div><button className="google" disabled={busy} onClick={google}>Doorgaan met Google</button></>}
+      <div className="auth-links">{mode==="login"?<><button onClick={()=>changeMode("signup")}>Nog geen account? Registreren</button><button onClick={()=>changeMode("reset")}>Wachtwoord vergeten?</button></>:<button onClick={()=>changeMode("login")}>Terug naar inloggen</button>}</div>
+    </>}
+  </motion.section></div>
+}
 export default function App(){const [theme,setTheme]=useState<Theme>(()=>(localStorage.getItem("mingle-theme") as Theme)||"dark");const [session,setSession]=useState<Session|null>(null);const [auth,setAuth]=useState(true);const [sessionChecked,setSessionChecked]=useState(false);const [isAdmin,setIsAdmin]=useState(false);const [page,setPage]=useState("Home");const [tab,setTab]=useState("For you");const [composer,setComposer]=useState("");const [posts,setPosts]=useState<{id:string;body:string;name:string;handle:string;created_at:string;likes:number}[]>([]);const [notice,setNotice]=useState("");
 useEffect(()=>{const media=window.matchMedia("(prefers-color-scheme: dark)");const update=()=>document.documentElement.dataset.theme=theme==="system"?(media.matches?"dark":"light"):theme;update();media.addEventListener("change",update);localStorage.setItem("mingle-theme",theme);return()=>media.removeEventListener("change",update)},[theme]);
-useEffect(()=>{if(!supabase){setSessionChecked(true);setAuth(true);return}supabase.auth.getSession().then(({data})=>{setSession(data.session);setSessionChecked(true);if(!data.session)setAuth(true)}).catch(()=>{setSessionChecked(true);setAuth(true)});const {data}=supabase.auth.onAuthStateChange((_event,s)=>setSession(s));return()=>data.subscription.unsubscribe()},[]);
+useEffect(()=>{if(!supabase){setSessionChecked(true);setAuth(true);return}supabase.auth.getSession().then(({data})=>{setSession(data.session);setSessionChecked(true);if(!data.session)setAuth(true)}).catch(()=>{setSessionChecked(true);setAuth(true)});const {data}=supabase.auth.onAuthStateChange((_event,s)=>{setSession(s);if(s)setAuth(false)});return()=>data.subscription.unsubscribe()},[]);
 useEffect(()=>{if(!supabase||!session){setIsAdmin(false);return}supabase.from("profiles").select("role").eq("id",session.user.id).single().then(({data})=>setIsAdmin(data?.role==="admin"))},[session]);
 useEffect(()=>{if(!supabase||!session)return;const client=supabase;async function load(){const {data,error}=await client.from("posts").select("id,body,created_at,profiles(display_name,username)").order("created_at",{ascending:false}).limit(30);if(error){setNotice("Feed unavailable: "+error.message);return}setPosts((data||[]).map((p:any)=>({id:p.id,body:p.body,created_at:p.created_at,name:p.profiles?.display_name||"Member",handle:p.profiles?.username||"member",likes:0})))}void load();const channel=client.channel("feed-changes").on("postgres_changes",{event:"INSERT",schema:"public",table:"posts"},()=>{void load()}).subscribe();return()=>{void client.removeChannel(channel)}},[session]);
 async function publish(){if(!session||!supabase){setAuth(true);return}if(!composer.trim())return;const {error}=await supabase.from("posts").insert({author_id:session.user.id,body:composer.trim()});if(error)setNotice(error.message);else{setComposer("");setNotice("Post published");const {data}=await supabase.from("posts").select("id,body,created_at,profiles(display_name,username)").order("created_at",{ascending:false}).limit(30);setPosts((data||[]).map((p:any)=>({id:p.id,body:p.body,created_at:p.created_at,name:p.profiles?.display_name||"Member",handle:p.profiles?.username||"member",likes:0})))}} 
