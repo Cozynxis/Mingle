@@ -1,4 +1,5 @@
 name: Deploy Mingle
+# Redeploy requested for email OTP registration test.
 on:
   push:
     branches: [main]
