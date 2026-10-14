@@ -30,3 +30,9 @@
 .mini-badges .badge-verified{color:#fff;background:linear-gradient(145deg,#47b9ff,#1769ed);box-shadow:0 2px 10px #258dfc40}
 .mini-badges .badge-official{color:#fff;background:linear-gradient(145deg,#b77aff,#7439d5);box-shadow:0 2px 10px #9455ec40}
 .mini-badges .badge-premium{color:#4a2b00!important;background:linear-gradient(145deg,#ffe8a1,#f2b943 65%,#c98919);box-shadow:0 2px 12px #eeb74750}
+
+/* Signup six-digit email code */
+.otp-label{display:block;text-align:left;margin-bottom:9px;font-size:13px;font-weight:700}
+.auth-modal .otp-input{width:100%;box-sizing:border-box;text-align:center;letter-spacing:.52em;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;border:1px solid var(--border);border-radius:14px;padding:15px 10px;margin-bottom:14px;background:var(--surface);color:var(--text)}
+.otp-input::placeholder{color:var(--muted);opacity:.4}
+.verify-panel .auth-text-button{margin:12px 7px 0}
