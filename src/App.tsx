@@ -45,7 +45,7 @@ function Auth({onClose}:{onClose:()=>void}) {
     if(!supabase||busy||!/^[0-9]{6}$/.test(otp))return;
     setBusy(true);setError("");setSuccess("");
     try{
-      const {error}=await supabase.auth.verifyOtp({email:email.trim(),token:otp,type:"email"});
+      const {error}=await supabase.auth.verifyOtp({email:email.trim(),token:otp,type:"signup"});
       if(error)throw error;
       onClose();
     }catch(e){setError(e instanceof Error && !/expired|invalid/i.test(e.message)?e.message:"De code is ongeldig of verlopen. Vraag hieronder een nieuwe code aan en gebruik alleen de nieuwste e-mail.");}
