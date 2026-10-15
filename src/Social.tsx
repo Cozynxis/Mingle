@@ -1,7 +1,7 @@
 import { PostExtras } from "./PostExtras";
 import { HighlightedText, HashtagComposer, countHashtags } from "./Hashtags";
 import { useCallback, useEffect, useState } from "react";
-import { Bookmark, Heart, MessageCircle, Repeat2, X, UserPlus, UserMinus, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, Repeat2, Images, X, UserPlus, UserMinus, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import "./social.css";
@@ -27,10 +27,22 @@ function useSocialUpdates(refresh:()=>void){
 }
 export function Social({session,mode="feed",profileId,followingOnly=false,searchQuery="",targetPostId,onTargetHandled,onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;searchQuery?:string;targetPostId?:string|null;onTargetHandled?:()=>void;onOpenProfile?:(id:string)=>void}){
  const [menuPost,setMenuPost]=useState<string|null>(null),[editing,setEditing]=useState<SocialPost|null>(null),[editBody,setEditBody]=useState(""),[saving,setSaving]=useState(false),[confirmDelete,setConfirmDelete]=useState<SocialPost|null>(null),[pendingActions,setPendingActions]=useState<string[]>([]),[replyLikes,setReplyLikes]=useState<Record<string,{count:number;liked:boolean}>>({}),[replyTo,setReplyTo]=useState<Reply|null>(null),[posts,setPosts]=useState<SocialPost[]>([]),[engagement,setEngagement]=useState<Record<string,Engagement>>({}),[selected,setSelected]=useState<SocialPost|null>(null),[replies,setReplies]=useState<Reply[]>([]),[reply,setReply]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
+ const [profileTab,setProfileTab]=useState<"posts"|"media"|"reposts">("posts");
+ const [repostDates,setRepostDates]=useState<Record<string,string>>({});
  const load=useCallback(async()=>{if(!supabase)return;const client=supabase;
+ const isProfile=mode==="profile"&&Boolean(profileId);
+ const repostResult=isProfile&&profileTab==="reposts"?await client.from("post_reposts").select("post_id,created_at").eq("user_id",profileId!).order("created_at",{ascending:false}).limit(500):null;
+ if(repostResult?.error){setError(repostResult.error.message);return}
+ const repostRows=repostResult?.data||[];
+ const repostIds=[...new Set(repostRows.map(x=>x.post_id))];
+ setRepostDates(Object.fromEntries(repostRows.map(x=>[x.post_id,x.created_at])));
  const [{data:followData},{data:postsData,error:postsError}]=await Promise.all([
  client.from("follows").select("following_id").eq("follower_id",session.user.id),
- client.from("posts").select("id,author_id,body,image_url,created_at,profiles!posts_author_id_fkey(display_name,username,avatar_url)").order("created_at",{ascending:false}).limit(100)
+ isProfile&&profileTab==="reposts"
+  ?(repostIds.length?client.from("posts").select("id,author_id,body,image_url,created_at,profiles!posts_author_id_fkey(display_name,username,avatar_url)").in("id",repostIds).limit(500):Promise.resolve({data:[],error:null}))
+  :isProfile
+  ?client.from("posts").select("id,author_id,body,image_url,created_at,profiles!posts_author_id_fkey(display_name,username,avatar_url)").eq("author_id",profileId!).order("created_at",{ascending:false}).limit(500)
+  :client.from("posts").select("id,author_id,body,image_url,created_at,profiles!posts_author_id_fkey(display_name,username,avatar_url)").order("created_at",{ascending:false}).limit(100)
  ]);
  if(postsError){setError(postsError.message);return}
  const followed=(followData||[]).map((f:any)=>String(f.following_id));
@@ -49,8 +61,8 @@ export function Social({session,mode="feed",profileId,followingOnly=false,search
  for(const id of ids){const l=(likes.data||[]).filter(x=>x.post_id===id),r=(reposts.data||[]).filter(x=>x.post_id===id);
  map[id]={views:(views.data||[]).filter(x=>x.post_id===id).length,likes:l.length,reposts:r.length,replies:(repliesData.data||[]).filter(x=>x.post_id===id).length,liked:l.some(x=>x.user_id===session.user.id),reposted:r.some(x=>x.user_id===session.user.id),bookmarked:(bookmarks.data||[]).some(x=>x.post_id===id)}}
  setEngagement(map);
- setPosts(all.filter(p=>(mode==="profile"?p.author_id===profileId:mode==="bookmarks"?map[p.id]?.bookmarked:!followingOnly||p.author_id===session.user.id||followed.includes(p.author_id))&&(!searchQuery.trim()||p.body.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))));
- },[session.user.id,mode,profileId,followingOnly,searchQuery]);
+ setPosts((mode==="profile"&&profileTab==="reposts"?all.sort((a,b)=>(repostDates[b.id]||repostRows.find(x=>x.post_id===b.id)?.created_at||"").localeCompare(repostDates[a.id]||repostRows.find(x=>x.post_id===a.id)?.created_at||"")):all).filter(p=>(mode==="profile"?(profileTab==="reposts"?repostIds.includes(p.id):p.author_id===profileId&&(profileTab!=="media"||Boolean(p.image_url))):mode==="bookmarks"?map[p.id]?.bookmarked:!followingOnly||p.author_id===session.user.id||followed.includes(p.author_id))&&(!searchQuery.trim()||p.body.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))));
+ },[session.user.id,mode,profileId,profileTab,followingOnly,searchQuery]);
  useSocialUpdates(load);
  useEffect(()=>{window.addEventListener("mingle-social-changed",load);return()=>window.removeEventListener("mingle-social-changed",load)},[load]);
  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(!document.hidden)void load()},5000);return()=>window.clearInterval(timer)},[load]);
