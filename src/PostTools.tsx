@@ -4,14 +4,14 @@ import "./post-extras.css";
 // Unicode emoji ranges plus modifiers, flags, and common joined sequences.
 // This is generated in-browser; no external emoji API or extra dependency.
 const emojiRanges:[[number,number],...Array<[number,number]>]=[[0x1F300,0x1F5FF],[0x1F600,0x1F64F],[0x1F680,0x1F6FF],[0x1F900,0x1F9FF],[0x1FA70,0x1FAFF],[0x2600,0x26FF],[0x2700,0x27BF],[0x1F000,0x1F02F],[0x1F0A0,0x1F0FF],[0x2300,0x23FF]];
-const emojiPattern=/\\p{Emoji_Presentation}|\\p{Extended_Pictographic}/u;
+const emojiPattern=/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u;
 const emojiGroups:Record<string,string[]>={};
 function unique(list:string[]){return [...new Set(list)]}
 const allBase=emojiRanges.flatMap(([start,end])=>Array.from({length:end-start+1},(_,i)=>String.fromCodePoint(start+i))).filter(x=>emojiPattern.test(x));
 const flags=Array.from({length:26*26},(_,i)=>String.fromCodePoint(0x1F1E6+Math.floor(i/26),0x1F1E6+i%26));
 const extras=["❤️","♥️","☀️","☁️","☂️","☃️","☄️","✈️","✉️","✏️","✂️","✔️","✖️","☺️","☹️","⚽","⚾","🏳️‍🌈","🏳️‍⚧️","🏴‍☠️","👨‍👩‍👧","👨‍👩‍👦","👩‍👩‍👧","👨‍👨‍👦","👩‍❤️‍👨","👩‍❤️‍👩","👨‍❤️‍👨","👩‍💻","👨‍💻","🧑‍💻","👩‍🚀","👨‍🚀","🧑‍🚀","👩‍🎨","👨‍🎨","🧑‍🎨","👩‍🍳","👨‍🍳","🧑‍🍳","👩‍⚕️","👨‍⚕️","🧑‍⚕️","👩‍🏫","👨‍🏫","🧑‍🏫"];
 const tones=["🏻","🏼","🏽","🏾","🏿"];
-const skinBases=allBase.filter(e=>/\\p{Emoji_Modifier_Base}/u.test(e));
+const skinBases=allBase.filter(e=>/\p{Emoji_Modifier_Base}/u.test(e));
 const skinVariations=skinBases.flatMap(e=>tones.map(t=>e+t));
 emojiGroups["Gezichten"]=unique([...allBase.filter(e=>{const n=e.codePointAt(0)!;return n>=0x1F600&&n<=0x1F64F||n>=0x1F910&&n<=0x1F92F||n>=0x1F970&&n<=0x1F97F||n>=0x1F9D0&&n<=0x1F9DF||n>=0x1FAE0&&n<=0x1FAEF}),"☺️","☹️","❤️","🥹","😍","😂"]);
 emojiGroups["Mensen"]=unique([...allBase.filter(e=>{const n=e.codePointAt(0)!;return n>=0x1F440&&n<=0x1F4AA||n>=0x1F900&&n<=0x1F93F||n>=0x1F9B0&&n<=0x1F9DF}),...skinVariations,...extras.filter(e=>e.includes("‍"))]);
