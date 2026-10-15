@@ -9,8 +9,8 @@ type Person={id:string;username:string;display_name:string;avatar_url:string|nul
 type PostPreview={id:string;author_id:string;body:string;created_at:string};
 const hashtagPattern=/#([\p{L}\p{N}_]{2,40})/gu;
 export function Explore({session,onOpenProfile}:{session:Session;onOpenProfile:(id:string)=>void}){
- const [search,setSearch]=useState("");
- useEffect(()=>{const handler=(e:Event)=>{const tag=(e as CustomEvent<string>).detail;if(tag){setSearch(tag);setFilter("posts")}};window.addEventListener("mingle-explore-search",handler);return()=>window.removeEventListener("mingle-explore-search",handler)},[]);
+ const [search,setSearch]=useState(()=>window.sessionStorage.getItem("mingle-explore-query")||"");
+ useEffect(()=>{const handler=(e:Event)=>{const tag=(e as CustomEvent<string>).detail;if(typeof tag==="string"){setSearch(tag);setFilter(tag.startsWith("#")?"posts":"all");window.sessionStorage.setItem("mingle-explore-query",tag)}};window.addEventListener("mingle-explore-search",handler);return()=>window.removeEventListener("mingle-explore-search",handler)},[]);
  const [filter,setFilter]=useState<"all"|"people"|"posts"|"tags">("all");
  const [people,setPeople]=useState<Person[]>([]);
  const [posts,setPosts]=useState<PostPreview[]>([]);
