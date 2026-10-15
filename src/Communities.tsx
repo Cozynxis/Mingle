@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useState} from "react";
 import type {Session} from "@supabase/supabase-js";
 import {supabase} from "./lib/supabase";
-import {Users,Search,Plus,ArrowLeft,Settings,Lock,Globe,EyeOff,Send,ImagePlus,Trash2,Pin,Check,X,ShieldCheck,UserPlus,Copy} from "lucide-react";
+import {Users,Search,Plus,ArrowLeft,Settings,Lock,Globe,EyeOff,Send,ImagePlus,Trash2,Pin,Check,X,ShieldCheck,Copy} from "lucide-react";
 import "./communities.css";
 type Community={id:string;owner_id:string;name:string;slug:string;description:string;category:string;privacy:"public"|"private"|"hidden";logo_url:string|null;banner_url:string|null;allow_posts:boolean;allow_replies:boolean;allow_images:boolean;require_approval:boolean;created_at:string};
 type Member={community_id:string;user_id:string;status:"pending"|"member"|"banned";joined_at:string};
