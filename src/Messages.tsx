@@ -8,6 +8,7 @@ type Person={id:string;username:string;display_name:string;avatar_url:string|nul
 type Connection={id:string;requester_id:string;recipient_id:string;status:"pending"|"accepted"|"blocked";blocked_by:string|null;created_at:string};
 type Message={id:string;connection_id:string;sender_id:string;body:string;attachment_path:string|null;attachment_type:string|null;created_at:string;read_at:string|null};
 
+const stamp=(date:string)=>new Date(date).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
 export function Messages({session}:{session:Session}){
  const me=session.user.id;
  const [emojiCategory,setEmojiCategory]=useState("Gezichten"),[emojiSearch,setEmojiSearch]=useState("");const [connections,setConnections]=useState<Connection[]>([]),[people,setPeople]=useState<Record<string,Person>>({}),[active,setActive]=useState<string|null>(null),[messages,setMessages]=useState<Message[]>([]),[showFind,setShowFind]=useState(false),[search,setSearch]=useState(""),[results,setResults]=useState<Person[]>([]),[body,setBody]=useState(""),[emoji,setEmoji]=useState(false),[file,setFile]=useState<File|null>(null),[sending,setSending]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[settings,setSettings]=useState(false),[allowMessages,setAllowMessages]=useState(true),[showMenu,setShowMenu]=useState(false),[fileUrls,setFileUrls]=useState<Record<string,string>>({});
