@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Bell, Bookmark, Compass, Heart, Home, Mail, MessageCircle, MoreHorizontal, Repeat2, Search, Settings, ShieldCheck, Users, Moon, Sun, Monitor, LogOut, Image, ArrowRight, BadgeCheck, Gem, Star } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
-import { ProfileEditor, emptyProfile, type MingleProfile } from "./ProfileEditor";
+import { ProfileEditor, type MingleProfile } from "./ProfileEditor";
 import { UserRound, UserPen, ChevronUp } from "lucide-react";
 type Theme = "dark" | "light" | "system";
 const navigation = [{label:"Home",icon:Home},{label:"Explore",icon:Compass},{label:"Notifications",icon:Bell},{label:"Messages",icon:Mail},{label:"Communities",icon:Users},{label:"Bookmarks",icon:Bookmark},{label:"Settings",icon:Settings}];
