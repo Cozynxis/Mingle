@@ -52,3 +52,6 @@
 .rightbar .searchbox input{min-width:0;width:100%;flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:13px;padding:0}
 .rightbar .searchbox input::placeholder{color:var(--muted)}
 .rightbar .searchbox:focus-within{border-color:var(--purple);box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 16%,transparent)}
+
+/* Admin-awarded badges displayed on member profiles */
+.profile-title-with-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.profile-awarded-badges{display:inline-flex;align-items:center;gap:3px}.profile-awarded-badges img{width:27px;height:27px;object-fit:contain;filter:drop-shadow(0 1px 4px #0004)}
