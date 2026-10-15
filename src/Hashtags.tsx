@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import { Hash } from "lucide-react";
 import "./hashtags.css";
 export const HASHTAG_RE=/#([\p{L}\p{N}_]{1,40})/gu;
