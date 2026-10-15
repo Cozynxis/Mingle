@@ -23,6 +23,17 @@ const tabId = (() => {
   }
 })();
 const storageEntry = `mingle-v3-auth-${tabId}`;
+// Restore sessions saved by the previous Mingle auth implementation during
+// the migration to stable per-tab storage. Keep the same key on refresh.
+try {
+  if (!sessionStorage.getItem(storageEntry)) {
+    const previous = sessionStorage.getItem("mingle-auth-current-session");
+    if (previous) {
+      sessionStorage.setItem(storageEntry, previous);
+      sessionStorage.removeItem("mingle-auth-current-session");
+    }
+  }
+} catch { /* private browsing or disabled storage */ }
 const tabStorage = {
   getItem: (_key: string): string | null => {
     try { return sessionStorage.getItem(storageEntry); } catch { return null; }
