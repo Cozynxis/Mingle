@@ -15,3 +15,11 @@
 .social-reply-author:hover{text-decoration:underline}
 .social-reply-author span{font-weight:400;color:var(--muted);font-size:12px}
 .social-reply-content p{margin:7px 0 0;line-height:1.55}
+
+.social-reply-thread{border-left:2px solid var(--border);padding-left:10px}
+.social-reply-actions{display:flex;align-items:center;gap:14px;margin-top:7px}
+.social-reply-actions button{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;font-size:12px}
+.social-reply-actions button.social-active{color:#9a7bff}
+.social-reply-actions button:hover{color:#9a7bff}
+.social-replying-to{margin-top:12px;padding:9px 12px;background:var(--hover);border-radius:9px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between}
+.social-replying-to button{background:none;border:0;color:#9a7bff;cursor:pointer}
