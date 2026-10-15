@@ -3,7 +3,7 @@ import { HashtagComposer, countHashtags } from "./Hashtags";
 import { Explore } from "./Explore";
 import { useEffect, useState, type FormEvent } from "react";
 import { motion } from "motion/react";
-import { Bell, Bookmark, Compass, Home, Mail, Search, Settings, ShieldCheck, Users, Moon, Sun, Monitor, LogOut, Image, ArrowRight, BadgeCheck, Gem, Star } from "lucide-react";
+import { Bell, Bookmark, Compass, Home, Mail, Search, Settings, ShieldCheck, Users, Moon, Sun, Monitor, LogOut, ArrowRight, BadgeCheck, Gem, Star } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { ProfileEditor, type MingleProfile } from "./ProfileEditor";
