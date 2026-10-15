@@ -15,7 +15,7 @@ import { UserRound, UserPen, ChevronUp } from "lucide-react";
 type Theme = "dark" | "light" | "system";
 
 const navigation = [{label:"Home",icon:Home},{label:"Explore",icon:Compass},{label:"Notifications",icon:Bell},{label:"Messages",icon:Mail},{label:"Communities",icon:Users},{label:"Bookmarks",icon:Bookmark}];
-function Brand(){return <div className="brand"><span className="brand-icon" aria-label="Mingle logo"><svg viewBox="0 0 64 64" aria-hidden="true" width="38" height="38"><rect x="0" y="0" width="64" height="64" rx="17" fill="#7385ff"/><path d="M12 44V24c0-9 12-9 12 0v20-20c0-9 12-9 12 0v20-20c0-9 12-9 12 0v20" fill="none" stroke="#fff" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span><strong>mingle<span className="brand-dot">.</span></strong></div>}
+function Brand(){return <div className="brand"><span className="brand-icon" aria-label="Mingle logo"><img src="/mingle-logo.svg" alt="" width="38" height="38" style={{display:"block",objectFit:"contain"}}/></span><strong>mingle<span className="brand-dot">.</span></strong></div>}
 function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;recoveryMode?:boolean;onRecoveryComplete?:()=>void}) {
   const [mode,setMode]=useState<"login"|"signup"|"reset"|"verify"|"newPassword">(recoveryMode?"newPassword":"login");
   const [email,setEmail]=useState("");
