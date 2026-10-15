@@ -1,4 +1,4 @@
-import {NameBadge,ProfileBadges,BadgePreference} from "./Badges";
+import {ProfileBadges,BadgePreference} from "./Badges";
 import { Communities } from "./Communities";
 import { Messages } from "./Messages";
 import { Notifications } from "./Notifications";
