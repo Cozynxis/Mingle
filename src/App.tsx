@@ -107,7 +107,7 @@ function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;
         {success&&<p className="success" role="status">{success}</p>}
         <button disabled={busy} className="primary wide" type="submit">{busy?"Even wachten...":mode==="login"?"Inloggen":mode==="signup"?"Account aanmaken":"Herstellink versturen"} <ArrowRight size={17}/></button>
       </form>
-      {mode!=="reset"&&<><div className="auth-divider"><span>of</span></div><button className="google" disabled={busy} onClick={google}>Doorgaan met Google</button></>}
+      {mode!=="reset"&&<div className="auth-providers"><div className="auth-providers-heading"><span>Overige aanmeldopties</span></div><div className="auth-provider-grid"><button type="button" className="auth-provider-tile" disabled={busy} onClick={google} aria-label="Aanmelden met Google" title="Aanmelden met Google"><img src="/google-logo.svg" alt="" width="28" height="28"/></button></div></div>}
       <div className="auth-links">{mode==="login"?<><button onClick={()=>changeMode("signup")}>Nog geen account? Registreren</button><button onClick={()=>changeMode("reset")}>Wachtwoord vergeten?</button></>:<button onClick={()=>changeMode("login")}>Terug naar inloggen</button>}</div>
     </>}
   </motion.section></div>
