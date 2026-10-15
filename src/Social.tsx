@@ -7,6 +7,22 @@ export type SocialPost={id:string;author_id:string;body:string;created_at:string
 type Engagement={likes:number;reposts:number;replies:number;liked:boolean;reposted:boolean;bookmarked:boolean};
 type Reply={id:string;author_id:string;parent_id:string|null;body:string;created_at:string;profiles:{display_name:string;username:string;avatar_url:string|null}|null};
 const stamp=(s:string)=>new Date(s).toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
+const SOCIAL_TABLES=["follows","post_likes","post_reposts","post_replies","reply_likes","posts"] as const;
+function useSocialUpdates(refresh:()=>void){
+ useEffect(()=>{
+  if(!supabase)return;
+  const client=supabase;
+  let pending=false;
+  const notify=()=>{if(pending)return;pending=true;window.setTimeout(()=>{pending=false;if(!document.hidden)refresh()},250)};
+  const channel=client.channel("mingle-social-"+crypto.randomUUID());
+  for(const table of SOCIAL_TABLES)channel.on("postgres_changes",{event:"*",schema:"public",table},notify);
+  channel.subscribe();
+  const onVisible=()=>{if(!document.hidden)refresh()};
+  document.addEventListener("visibilitychange",onVisible);
+  window.addEventListener("focus",onVisible);
+  return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onVisible);void client.removeChannel(channel)};
+ },[refresh]);
+}
 export function Social({session,mode="feed",profileId,followingOnly=false,onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;onOpenProfile?:(id:string)=>void}){
  const [replyLikes,setReplyLikes]=useState<Record<string,{count:number;liked:boolean}>>({}),[replyTo,setReplyTo]=useState<Reply|null>(null),[posts,setPosts]=useState<SocialPost[]>([]),[engagement,setEngagement]=useState<Record<string,Engagement>>({}),[selected,setSelected]=useState<SocialPost|null>(null),[replies,setReplies]=useState<Reply[]>([]),[reply,setReply]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
  const load=useCallback(async()=>{if(!supabase)return;const client=supabase;
@@ -32,6 +48,7 @@ export function Social({session,mode="feed",profileId,followingOnly=false,onOpen
  setEngagement(map);
  setPosts(all.filter(p=>mode==="profile"?p.author_id===profileId:mode==="bookmarks"?map[p.id]?.bookmarked:!followingOnly||p.author_id===session.user.id||followed.includes(p.author_id)));
  },[session.user.id,mode,profileId,followingOnly]);
+ useSocialUpdates(load);
  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(!document.hidden)void load()},5000);return()=>window.clearInterval(timer)},[load]);
  const loadReplies=useCallback(async(postId:string)=>{if(!supabase)return;
  let {data,error:e}=await supabase.from("post_replies").select("id,author_id,parent_id,body,created_at,profiles!post_replies_author_id_fkey(display_name,username,avatar_url)").eq("post_id",postId).order("created_at");
@@ -50,6 +67,8 @@ export function Social({session,mode="feed",profileId,followingOnly=false,onOpen
  for(const item of items){const own=(likes||[]).filter(l=>l.reply_id===item.id);map[item.id]={count:own.length,liked:own.some(l=>l.user_id===session.user.id)}}
  setReplyLikes(map);
  },[session.user.id]);
+ const refreshSelected=useCallback(()=>{if(selected)void loadReplies(selected.id)},[selected?.id,loadReplies]);
+ useSocialUpdates(refreshSelected);
  useEffect(()=>{if(!selected)return;void loadReplies(selected.id);const timer=window.setInterval(()=>{if(!document.hidden)void loadReplies(selected.id)},5000);return()=>window.clearInterval(timer)},[selected,loadReplies]);
  async function toggleReplyLike(item:Reply){if(!supabase||busy)return;setBusy(true);setError("");
  const exists=replyLikes[item.id]?.liked;
@@ -73,6 +92,9 @@ export function Social({session,mode="feed",profileId,followingOnly=false,onOpen
 }
 export function ProfileStats({session,userId}:{session:Session;userId:string}){
  const [stats,setStats]=useState({followers:0,following:0,likes:0});
+ const [revision,setRevision]=useState(0);
+ const refreshNow=useCallback(()=>setRevision(n=>n+1),[]);
+ useSocialUpdates(refreshNow);
  useEffect(()=>{if(!supabase)return;const client=supabase;let active=true;
  const refresh=async()=>{
   const [a,b,c]=await Promise.all([
@@ -86,25 +108,35 @@ export function ProfileStats({session,userId}:{session:Session;userId:string}){
  };
  void refresh();const timer=window.setInterval(()=>{if(!document.hidden)void refresh()},5000);
  return()=>{active=false;window.clearInterval(timer)}
- },[userId,session.user.id]);
+ },[userId,session.user.id,revision]);
  return <div className="social-stats"><div><strong>{stats.followers}</strong><span>Volgers</span></div><div><strong>{stats.following}</strong><span>Volgend</span></div><div><strong>{stats.likes}</strong><span>Likes ontvangen</span></div></div>
 }
 
 export function FollowButton({session,userId}:{session:Session;userId:string}){
- const [following,setFollowing]=useState(false);
+ const [following,setFollowing]=useState<boolean|null>(null);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
- useEffect(()=>{if(!supabase||userId===session.user.id)return;let active=true;const refresh=()=>{void supabase!.from("follows").select("following_id").eq("follower_id",session.user.id).eq("following_id",userId).maybeSingle().then(({data,error:e})=>{if(active){if(e)setError(e.message);else setFollowing(!!data)}})};refresh();const timer=window.setInterval(()=>{if(!document.hidden)refresh()},5000);return()=>{active=false;window.clearInterval(timer)}},[session.user.id,userId]);
+ const refresh=useCallback(async()=>{
+  if(!supabase||userId===session.user.id)return;
+  const {data,error:e}=await supabase.from("follows").select("follower_id,following_id").eq("follower_id",session.user.id).eq("following_id",userId).limit(1);
+  if(e){setError(e.message);return}
+  setFollowing((data||[]).length>0);
+ },[session.user.id,userId]);
+ const notify=useCallback(()=>{void refresh()},[refresh]);
+ useSocialUpdates(notify);
+ useEffect(()=>{setFollowing(null);setError("");void refresh();const timer=window.setInterval(()=>{if(!document.hidden)void refresh()},5000);return()=>window.clearInterval(timer)},[refresh]);
  if(userId===session.user.id)return null;
  async function toggleFollow(){
-  if(!supabase||busy)return;
+  if(!supabase||busy||following===null)return;
   setBusy(true);setError("");
-  const {error:e}=following
-   ?await supabase.from("follows").delete().eq("follower_id",session.user.id).eq("following_id",userId)
-   :await supabase.from("follows").insert({follower_id:session.user.id,following_id:userId});
-  if(e)setError(e.message);
-  else setFollowing(!following);
-  setBusy(false);
+  try{
+   const {error:e}=following
+    ?await supabase.from("follows").delete().eq("follower_id",session.user.id).eq("following_id",userId)
+    :await supabase.from("follows").upsert({follower_id:session.user.id,following_id:userId},{onConflict:"follower_id,following_id",ignoreDuplicates:true});
+   if(e)throw e;
+   await refresh();
+  }catch(e){setError(e instanceof Error?e.message:"Volgen is mislukt");await refresh()}
+  finally{setBusy(false)}
  }
- return <div className="profile-follow-wrap"><button className="profile-follow-button" disabled={busy} onClick={()=>void toggleFollow()}>{following?<><UserMinus size={17}/> Ontvolgen</>:<><UserPlus size={17}/> Volgen</>}</button>{error&&<span className="profile-follow-error" role="alert">{error}</span>}</div>;
+ return <div className="profile-follow-wrap"><button className="profile-follow-button" disabled={busy||following===null} onClick={()=>void toggleFollow()}>{following===null?"Laden...":following?<><UserMinus size={17}/> Ontvolgen</>:<><UserPlus size={17}/> Volgen</>}</button>{error&&<span className="profile-follow-error" role="alert">{error}</span>}</div>;
 }
