@@ -17,7 +17,7 @@ function Auth({onClose}:{onClose:()=>void}) {
   const [showPassword,setShowPassword]=useState(false);
   const [resending,setResending]=useState(false);
   const [otp,setOtp]=useState("");
-  const redirectTo=window.location.origin+"/Mingle/";
+  const redirectTo=window.location.origin+"/";
   function changeMode(next:typeof mode){setMode(next);setError("");setSuccess("")}
   async function submit(e:FormEvent){
     e.preventDefault();setError("");setSuccess("");
