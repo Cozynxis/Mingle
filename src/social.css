@@ -34,3 +34,7 @@
 .profile-post-tabs button.active::after{content:"";position:absolute;bottom:0;left:18%;right:18%;height:3px;border-radius:5px 5px 0 0;background:var(--purple)}
 .profile-post-tabs button:focus-visible{outline:2px solid var(--purple);outline-offset:-3px}
 @media(max-width:450px){.profile-post-tabs button{gap:5px;padding:13px 3px;font-size:12px}.profile-post-tabs button svg{width:15px;height:15px}}
+
+/* Name, selected badge and @handle remain on the same line. */
+.social-meta button{display:inline-flex;align-items:center;gap:3px;flex-wrap:wrap;max-width:100%}
+.social-meta button .mingle-name-badge,.social-reply-author .mingle-name-badge{width:19px!important;height:19px!important;max-width:19px!important;max-height:19px!important;object-fit:contain!important;display:inline-block!important;flex:0 0 19px!important;margin:0 2px!important}
