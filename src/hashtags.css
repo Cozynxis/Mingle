@@ -1,1 +1,34 @@
 .mingle-hashtag{color:#459cff!important;font:inherit!important;font-weight:700!important;display:inline!important;background:none!important;border:0!important;padding:0!important;margin:0!important;cursor:pointer!important;text-decoration:none}.mingle-hashtag:hover{text-decoration:underline!important}.mingle-composer-shell{position:relative;flex:1;min-width:0}.mingle-composer-shell textarea,.mingle-composer-highlight{font:inherit;line-height:1.55;letter-spacing:inherit;white-space:pre-wrap;overflow-wrap:anywhere;box-sizing:border-box;padding:0;min-height:85px;width:100%;border:0;resize:vertical}.mingle-composer-shell textarea{position:relative;z-index:1;color:transparent!important;caret-color:var(--text);background:transparent!important;-webkit-text-fill-color:transparent}.mingle-composer-shell textarea::placeholder{color:transparent!important}.mingle-composer-highlight{position:absolute;inset:0;pointer-events:none;color:var(--text);overflow:hidden}.mingle-composer-highlight mark{color:#459cff;background:transparent;font-weight:700}.mingle-placeholder{color:var(--muted)}.mingle-tag-suggestions{position:relative;z-index:3;display:flex;gap:7px;flex-wrap:wrap;padding:11px;margin:6px 0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px #0002}.mingle-tag-suggestion-title{display:flex;align-items:center;gap:5px;flex-basis:100%;font-size:12px;color:var(--muted);margin-bottom:3px}.mingle-tag-suggestions button{background:#459cff19;border:1px solid #459cff40;color:#459cff;padding:6px 10px;border-radius:999px;cursor:pointer;font-weight:700}.mingle-tag-suggestions button:hover{background:#459cff30}.mingle-hashtag-count{display:block;text-align:right;font-size:11px;color:var(--muted);padding:3px 0}
+
+/* Identical overlay geometry keeps the visible glyphs and the real caret aligned. */
+.mingle-composer-shell{isolation:isolate;position:relative;min-height:120px}
+.mingle-composer-shell textarea,
+.mingle-composer-shell .mingle-composer-highlight{
+ font-family:inherit!important;font-size:15px!important;font-weight:400!important;
+ line-height:1.6!important;letter-spacing:normal!important;
+ padding:16px!important;margin:0!important;border:0!important;
+ width:100%!important;box-sizing:border-box!important;
+ white-space:pre-wrap!important;overflow-wrap:break-word!important;
+ tab-size:4!important;text-align:left!important;
+}
+.mingle-composer-shell textarea{
+ display:block!important;position:relative!important;z-index:2!important;
+ min-height:160px!important;height:160px!important;
+ resize:vertical!important;overflow:auto!important;
+ color:transparent!important;-webkit-text-fill-color:transparent!important;
+ caret-color:#f3f5ff!important;background:transparent!important;
+ border-radius:13px!important;outline:1px solid var(--border)!important;
+}
+.mingle-composer-shell textarea:focus{outline:2px solid #539bff!important;outline-offset:0}
+.mingle-composer-shell .mingle-composer-highlight{
+ position:absolute!important;top:0!important;left:0!important;right:0!important;
+ height:160px!important;min-height:160px!important;
+ z-index:1!important;overflow:hidden!important;
+ border-radius:13px!important;background:var(--surface)!important;
+ pointer-events:none!important;
+}
+.mingle-composer-shell .mingle-composer-highlight mark{font:inherit!important;font-weight:700!important;color:#459cff!important}
+.mingle-composer-shell .mingle-hashtag-count{position:relative;z-index:2;padding:10px 3px 0;font-size:12px}
+.social-edit-modal .mingle-composer-shell{margin:20px 0 8px}
+.social-edit-modal .mingle-composer-shell textarea,
+.social-edit-modal .mingle-composer-shell .mingle-composer-highlight{min-height:160px!important}
