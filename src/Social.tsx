@@ -34,7 +34,12 @@ export function Social({session,mode="feed",profileId,followingOnly=false,onOpen
  },[session.user.id,mode,profileId,followingOnly]);
  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(!document.hidden)void load()},5000);return()=>window.clearInterval(timer)},[load]);
  const loadReplies=useCallback(async(postId:string)=>{if(!supabase)return;
- const {data,error:e}=await supabase.from("post_replies").select("id,author_id,parent_id,body,created_at,profiles!post_replies_author_id_fkey(display_name,username,avatar_url)").eq("post_id",postId).order("created_at");
+ let {data,error:e}=await supabase.from("post_replies").select("id,author_id,parent_id,body,created_at,profiles!post_replies_author_id_fkey(display_name,username,avatar_url)").eq("post_id",postId).order("created_at");
+ if(e && /parent_id|schema cache/i.test(e.message)){
+  const fallback=await supabase.from("post_replies").select("id,author_id,body,created_at,profiles!post_replies_author_id_fkey(display_name,username,avatar_url)").eq("post_id",postId).order("created_at");
+  data=(fallback.data||[]).map(item=>({...item,parent_id:null})) as typeof data;
+  e=fallback.error;
+ }
  if(e){setError(e.message);return}
  const items=(data||[]) as unknown as Reply[];
  setReplies(items);
