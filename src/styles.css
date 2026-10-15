@@ -47,3 +47,8 @@
 .auth-modal .auth-provider-tile:focus-visible{outline:3px solid var(--purple);outline-offset:3px}
 .auth-modal .auth-provider-tile:disabled{opacity:.55;cursor:wait}
 .auth-provider-tile img{width:29px;height:29px;object-fit:contain;display:block}
+
+/* Search input in the right sidebar */
+.rightbar .searchbox input{min-width:0;width:100%;flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:13px;padding:0}
+.rightbar .searchbox input::placeholder{color:var(--muted)}
+.rightbar .searchbox:focus-within{border-color:var(--purple);box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 16%,transparent)}
