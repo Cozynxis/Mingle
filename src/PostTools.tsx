@@ -5,7 +5,7 @@ import "./post-extras.css";
 // This is generated in-browser; no external emoji API or extra dependency.
 const emojiRanges:[[number,number],...Array<[number,number]>]=[[0x1F300,0x1F5FF],[0x1F600,0x1F64F],[0x1F680,0x1F6FF],[0x1F900,0x1F9FF],[0x1FA70,0x1FAFF],[0x2600,0x26FF],[0x2700,0x27BF],[0x1F000,0x1F02F],[0x1F0A0,0x1F0FF],[0x2300,0x23FF]];
 const emojiPattern=/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u;
-const emojiGroups:Record<string,string[]>={};
+export const emojiGroups:Record<string,string[]>={};
 function unique(list:string[]){return [...new Set(list)]}
 const allBase=emojiRanges.flatMap(([start,end])=>Array.from({length:end-start+1},(_,i)=>String.fromCodePoint(start+i))).filter(x=>emojiPattern.test(x));
 const flags=Array.from({length:26*26},(_,i)=>String.fromCodePoint(0x1F1E6+Math.floor(i/26),0x1F1E6+i%26));
