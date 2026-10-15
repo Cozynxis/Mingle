@@ -23,7 +23,7 @@ function useSocialUpdates(refresh:()=>void){
   return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onVisible);void client.removeChannel(channel)};
  },[refresh]);
 }
-export function Social({session,mode="feed",profileId,followingOnly=false,onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;onOpenProfile?:(id:string)=>void}){
+export function Social({session,mode="feed",profileId,followingOnly=false,searchQuery="",onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;searchQuery?:string;onOpenProfile?:(id:string)=>void}){
  const [pendingActions,setPendingActions]=useState<string[]>([]),[replyLikes,setReplyLikes]=useState<Record<string,{count:number;liked:boolean}>>({}),[replyTo,setReplyTo]=useState<Reply|null>(null),[posts,setPosts]=useState<SocialPost[]>([]),[engagement,setEngagement]=useState<Record<string,Engagement>>({}),[selected,setSelected]=useState<SocialPost|null>(null),[replies,setReplies]=useState<Reply[]>([]),[reply,setReply]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
  const load=useCallback(async()=>{if(!supabase)return;const client=supabase;
  const [{data:followData},{data:postsData,error:postsError}]=await Promise.all([
@@ -46,8 +46,8 @@ export function Social({session,mode="feed",profileId,followingOnly=false,onOpen
  for(const id of ids){const l=(likes.data||[]).filter(x=>x.post_id===id),r=(reposts.data||[]).filter(x=>x.post_id===id);
  map[id]={likes:l.length,reposts:r.length,replies:(repliesData.data||[]).filter(x=>x.post_id===id).length,liked:l.some(x=>x.user_id===session.user.id),reposted:r.some(x=>x.user_id===session.user.id),bookmarked:(bookmarks.data||[]).some(x=>x.post_id===id)}}
  setEngagement(map);
- setPosts(all.filter(p=>mode==="profile"?p.author_id===profileId:mode==="bookmarks"?map[p.id]?.bookmarked:!followingOnly||p.author_id===session.user.id||followed.includes(p.author_id)));
- },[session.user.id,mode,profileId,followingOnly]);
+ setPosts(all.filter(p=>(mode==="profile"?p.author_id===profileId:mode==="bookmarks"?map[p.id]?.bookmarked:!followingOnly||p.author_id===session.user.id||followed.includes(p.author_id))&&(!searchQuery.trim()||p.body.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))));
+ },[session.user.id,mode,profileId,followingOnly,searchQuery]);
  useSocialUpdates(load);
  useEffect(()=>{window.addEventListener("mingle-social-changed",load);return()=>window.removeEventListener("mingle-social-changed",load)},[load]);
  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(!document.hidden)void load()},5000);return()=>window.clearInterval(timer)},[load]);
