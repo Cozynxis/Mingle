@@ -25,7 +25,7 @@ function useSocialUpdates(refresh:()=>void){
   return()=>{document.removeEventListener("visibilitychange",onVisible);window.removeEventListener("focus",onVisible);void client.removeChannel(channel)};
  },[refresh]);
 }
-export function Social({session,mode="feed",profileId,followingOnly=false,searchQuery="",onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;searchQuery?:string;onOpenProfile?:(id:string)=>void}){
+export function Social({session,mode="feed",profileId,followingOnly=false,searchQuery="",targetPostId,onTargetHandled,onOpenProfile}:{session:Session;mode?:"feed"|"profile"|"bookmarks";profileId?:string;followingOnly?:boolean;searchQuery?:string;targetPostId?:string|null;onTargetHandled?:()=>void;onOpenProfile?:(id:string)=>void}){
  const [menuPost,setMenuPost]=useState<string|null>(null),[editing,setEditing]=useState<SocialPost|null>(null),[editBody,setEditBody]=useState(""),[saving,setSaving]=useState(false),[confirmDelete,setConfirmDelete]=useState<SocialPost|null>(null),[pendingActions,setPendingActions]=useState<string[]>([]),[replyLikes,setReplyLikes]=useState<Record<string,{count:number;liked:boolean}>>({}),[replyTo,setReplyTo]=useState<Reply|null>(null),[posts,setPosts]=useState<SocialPost[]>([]),[engagement,setEngagement]=useState<Record<string,Engagement>>({}),[selected,setSelected]=useState<SocialPost|null>(null),[replies,setReplies]=useState<Reply[]>([]),[reply,setReply]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
  const load=useCallback(async()=>{if(!supabase)return;const client=supabase;
  const [{data:followData},{data:postsData,error:postsError}]=await Promise.all([
@@ -54,6 +54,7 @@ export function Social({session,mode="feed",profileId,followingOnly=false,search
  useSocialUpdates(load);
  useEffect(()=>{window.addEventListener("mingle-social-changed",load);return()=>window.removeEventListener("mingle-social-changed",load)},[load]);
  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(!document.hidden)void load()},5000);return()=>window.clearInterval(timer)},[load]);
+ useEffect(()=>{if(!targetPostId||!supabase)return;let cancelled=false;const open=async()=>{const {data,error:e}=await supabase!.from("posts").select("id,author_id,body,image_url,created_at,profiles!posts_author_id_fkey(display_name,username,avatar_url)").eq("id",targetPostId).maybeSingle();if(cancelled)return;if(e){setError(e.message);return}if(data){setSelected(data as unknown as SocialPost);onTargetHandled?.()}else{setError("Deze post is niet meer beschikbaar.");onTargetHandled?.()}};void open();return()=>{cancelled=true}},[targetPostId,onTargetHandled]);
  const loadReplies=useCallback(async(postId:string)=>{if(!supabase)return;
  let {data,error:e}=await supabase.from("post_replies").select("id,author_id,parent_id,body,created_at,profiles!post_replies_author_id_fkey(display_name,username,avatar_url)").eq("post_id",postId).order("created_at");
  if(e && /parent_id|schema cache/i.test(e.message)){
