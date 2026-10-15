@@ -1,5 +1,5 @@
 name: Deploy Mingle
-# Redeploy requested for email OTP registration test.
+# Force fresh GitHub Pages build for 8-digit OTP release.
 on:
   push:
     branches: [main]
