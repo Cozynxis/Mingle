@@ -42,10 +42,10 @@ function Auth({onClose}:{onClose:()=>void}) {
   }
   async function verifyCode(e:FormEvent){
     e.preventDefault();
-    if(!supabase||busy||!/^[0-9]{6}$/.test(otp))return;
+    if(!supabase||busy||!/^[0-9]{6,8}$/.test(otp))return;
     setBusy(true);setError("");setSuccess("");
     try{
-      const {error}=await supabase.auth.verifyOtp({email:email.trim(),token:otp,type:"signup"});
+      const {error}=await supabase.auth.verifyOtp({email:email.trim(),token:otp,type:"email"});
       if(error)throw error;
       onClose();
     }catch(e){setError(e instanceof Error && !/expired|invalid/i.test(e.message)?e.message:"De code is ongeldig of verlopen. Vraag hieronder een nieuwe code aan en gebruik alleen de nieuwste e-mail.");}
@@ -69,11 +69,11 @@ function Auth({onClose}:{onClose:()=>void}) {
     {mode==="verify"?<div className="verify-panel">
       <div className="verify-icon"><Mail size={31}/></div>
       <h2>Bevestig je e-mailadres</h2>
-      <p>Vul de 6-cijferige code in die we naar <strong>{email}</strong> hebben gestuurd.</p>
+      <p>Vul de volledige code (6 of 8 cijfers) in die we naar <strong>{email}</strong> hebben gestuurd.</p>
       <p className="muted">Controleer ook je spamfolder. De code is tijdelijk geldig.</p>
       {success&&<p className="success" role="status">{success}</p>}
       {error&&<p className="error" role="alert">{error}</p>}
-      <form onSubmit={verifyCode}><label className="otp-label" htmlFor="mingle-otp">Verificatiecode</label><input id="mingle-otp" className="otp-input" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" placeholder="000000" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} required/><button className="primary wide" disabled={busy||otp.length!==6} type="submit">{busy?"Controleren...":"Account bevestigen"} <ArrowRight size={17}/></button></form>
+      <form onSubmit={verifyCode}><label className="otp-label" htmlFor="mingle-otp">Verificatiecode</label><input id="mingle-otp" className="otp-input" inputMode="numeric" pattern="[0-9]{6,8}" maxLength={8} autoComplete="one-time-code" placeholder="00000000" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,8))} required/><button className="primary wide" disabled={busy||![6,8].includes(otp.length)} type="submit">{busy?"Controleren...":"Account bevestigen"} <ArrowRight size={17}/></button></form>
       <button className="google" disabled={resending} onClick={resend}>{resending?"Versturen...":"Bevestigingsmail opnieuw sturen"}</button>
       <button className="auth-text-button" onClick={()=>changeMode("login")}>Terug naar inloggen</button><button className="auth-text-button" onClick={()=>changeMode("signup")}>Ander e-mailadres gebruiken</button>
     </div>:<>
