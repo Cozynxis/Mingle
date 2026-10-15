@@ -55,3 +55,10 @@
 
 /* Admin-awarded badges displayed on member profiles */
 .profile-title-with-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.profile-awarded-badges{display:inline-flex;align-items:center;gap:3px}.profile-awarded-badges img{width:27px;height:27px;object-fit:contain;filter:drop-shadow(0 1px 4px #0004)}
+
+/* Keep the signed-in account card and its awarded badges within the sidebar. */
+.sidebar{min-width:0;overflow-x:clip}
+.sidebar-bottom,.account-menu-wrap,.account{min-width:0;max-width:100%}
+.account-text{min-width:0;overflow:hidden!important;overflow-wrap:anywhere}
+.mini-badges{display:flex;align-items:center;flex-wrap:wrap;gap:5px;max-width:100%}
+.mini-badges img{width:24px;height:24px;object-fit:contain;flex:0 0 24px}
