@@ -1,4 +1,5 @@
 name: Build Mingle Android APK
+# Rebuild v1.7.0 after TS6133 fix (6e4eace4).
 on:
   workflow_dispatch:
   push:
