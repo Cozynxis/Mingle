@@ -1,0 +1,33 @@
+import {useEffect} from "react";
+import {Capacitor} from "@capacitor/core";
+import {PushNotifications} from "@capacitor/push-notifications";
+import {supabase} from "./lib/supabase";
+export function AndroidCallPush({userId,onOpen}:{userId:string;onOpen:(id:string)=>void}){
+ useEffect(()=>{
+  if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=="android"||!supabase)return;
+  let alive=true;
+  const listeners:{remove:()=>Promise<void>}[]=[];
+  const save=async(token:string)=>{
+   if(!alive||!supabase)return;
+   const {error}=await supabase.from("mingle_push_tokens").upsert({user_id:userId,token,platform:"android",updated_at:new Date().toISOString()},{onConflict:"token"});
+   if(error)console.warn(error.message);
+  };
+  const open=(data:Record<string,unknown>)=>{
+   if(data?.type==="incoming_call"&&typeof data.connection_id==="string")onOpen(data.connection_id);
+  };
+  void (async()=>{
+   try{
+    listeners.push(await PushNotifications.addListener("registration",e=>{void save(e.value)}));
+    listeners.push(await PushNotifications.addListener("registrationError",e=>console.warn(e)));
+    listeners.push(await PushNotifications.addListener("pushNotificationActionPerformed",e=>open(e.notification.data)));
+    listeners.push(await PushNotifications.addListener("pushNotificationReceived",()=>window.dispatchEvent(new Event("mingle-refresh-incoming-calls"))));
+    await PushNotifications.createChannel({id:"mingle_calls",name:"Mingle-oproepen",description:"Inkomende oproepen",importance:5,visibility:1,sound:"default",vibration:true});
+    const permission=await PushNotifications.checkPermissions();
+    const allowed=permission.receive==="granted"?permission:await PushNotifications.requestPermissions();
+    if(allowed.receive==="granted")await PushNotifications.register();
+   }catch(e){console.warn("Push unavailable",e)}
+  })();
+  return()=>{alive=false;listeners.forEach(x=>{void x.remove()})};
+ },[userId,onOpen]);
+ return null;
+}
