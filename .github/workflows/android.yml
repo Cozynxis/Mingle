@@ -100,10 +100,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v1.5.1 >/dev/null 2>&1; then
-            echo "Release v1.5.1 already exists; keeping the published APK unchanged."
+          if gh release view v1.6.0 >/dev/null 2>&1; then
+            echo "Release v1.6.0 already exists; keeping the published APK unchanged."
           else
-            gh release create v1.5.1 android/app/build/outputs/apk/release/app-release.apk#Mingle-1.5.1.apk --title "Mingle Android 1.5.1" --notes "Messaging, voice notes, call reliability and mobile UI fixes."
+            gh release create v1.6.0 android/app/build/outputs/apk/release/app-release.apk#Mingle-1.6.0.apk --title "Mingle Android 1.6.0" --notes "Mingle Audio Update: call ringtone, incoming message notifications, voice note autoplay, and mute/unmute sounds."
           fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
