@@ -42,11 +42,32 @@ returns text[] language sql stable security definer set search_path=public as $$
 revoke all on function public.mingle_active_badges(uuid) from public;
 grant execute on function public.mingle_active_badges(uuid) to authenticated;
 
--- Profile media upload guard: all GIFs and animated WebP files are Premium-only.
--- Storage metadata can be spoofed: inspect the actual file bytes on a trusted backend
--- before making an uploaded file publicly visible. Until that backend is deployed,
--- deny ALL WebP to non-Premium to prevent animated WebP bypass.
+-- Replace the original permissive storage policy; policies are OR-combined.
+drop policy if exists "Profile media upload own folder" on storage.objects;
 drop policy if exists "premium_profile_media_upload" on storage.objects;
--- IMPORTANT: inspect existing profile-media INSERT policies and replace permissive ones:
--- RLS policies are OR-combined, so an old permissive policy can bypass a new restriction.
--- Use the Supabase Storage dashboard to enforce this rule on every existing upload path.
+create policy "premium_profile_media_upload" on storage.objects for insert to authenticated
+with check (
+ bucket_id='profile-media'
+ and (storage.foldername(name))[1]=auth.uid()::text
+ and (
+   (lower(storage.extension(name)) in ('jpg','jpeg','png') and lower(coalesce(metadata->>'mimetype','')) in ('image/jpeg','image/png'))
+   or
+   (public.mingle_has_premium(auth.uid())
+     and lower(storage.extension(name)) in ('webp','gif')
+     and lower(coalesce(metadata->>'mimetype','')) in ('image/webp','image/gif'))
+ )
+);
+-- Prevent non-Premium accounts from assigning GIF/WebP URLs as their profile media.
+create or replace function public.mingle_guard_premium_profile_media()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ if not public.mingle_has_premium(new.id) and
+ ( (new.avatar_url is distinct from old.avatar_url and lower(coalesce(split_part(new.avatar_url,'?',1),'')) ~ '\\.(gif|webp)$')
+ or (new.banner_url is distinct from old.banner_url and lower(coalesce(split_part(new.banner_url,'?',1),'')) ~ '\\.(gif|webp)$'))
+ then raise exception 'GIF en WebP voor profielfoto en banner vereisen Premium';end if;
+ return new;
+end $$;
+drop trigger if exists mingle_guard_premium_profile_media on public.profiles;
+create trigger mingle_guard_premium_profile_media before update on public.profiles
+for each row execute function public.mingle_guard_premium_profile_media();
+-- Byte-level inspection of animated formats and APNG is still recommended for a stronger guarantee.
