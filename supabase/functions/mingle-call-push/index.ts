@@ -36,7 +36,7 @@ Deno.serve(async req=>{
  const bearer=await googleToken(sa);
  let sent=0;
  for(const {token} of tokens){
-  const response=await fetch("https://fcm.googleapis.com/v1/projects/"+encodeURIComponent(sa.project_id)+"/messages:send",{method:"POST",headers:{"Authorization":"Bearer "+bearer,"Content-Type":"application/json"},body:JSON.stringify({message:{token,data:{type:"incoming_call",call_id:offer.call_id,connection_id:offer.connection_id,kind:offer.payload?.video?"video":"audio"},android:{priority:"HIGH",notification:{channel_id:"mingle_calls",title:"Mingle-oproep",body:"Je wordt gebeld via Mingle",click_action:"MINGLE_OPEN_CALL"}}}})});
+  const response=await fetch("https://fcm.googleapis.com/v1/projects/"+encodeURIComponent(sa.project_id)+"/messages:send",{method:"POST",headers:{"Authorization":"Bearer "+bearer,"Content-Type":"application/json"},body:JSON.stringify({message:{token,data:{type:"incoming_call",call_id:offer.call_id,connection_id:offer.connection_id,kind:offer.payload?.video?"video":"audio"},android:{priority:"HIGH",notification:{channel_id:"mingle_calls",title:"Mingle-oproep",body:"Je wordt gebeld via Mingle"}}}})});
   if(response.ok)sent++;
   else if(response.status===404||response.status===400)await db.from("mingle_push_tokens").delete().eq("token",token).eq("user_id",offer.recipient_id);
  }
