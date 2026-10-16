@@ -1,0 +1,8 @@
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+export const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers:{"content-type":"application/json","access-control-allow-origin":"https://mingle-app.nl","access-control-allow-headers":"authorization,apikey,content-type"}});
+export const cors=()=>new Response(null,{status:204,headers:{"access-control-allow-origin":"https://mingle-app.nl","access-control-allow-headers":"authorization,apikey,content-type","access-control-allow-methods":"POST,OPTIONS"}});
+export const db=()=>createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+export const mollieKey=()=>{const key=Deno.env.get("MOLLIE_API_KEY");if(!key||!key.startsWith("test_"))throw Error("Only Mollie test keys are enabled. Live billing requires verified adult merchant approval and a separate deployment.");return key};
+export async function mollie(path:string,method="GET",body?:unknown){const res=await fetch("https://api.mollie.com/v2"+path,{method,headers:{Authorization:"Bearer "+mollieKey(),"content-type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});const data=await res.json();if(!res.ok)throw Error("Mollie "+res.status+": "+JSON.stringify(data));return data}
+export async function auth(req:Request){const token=req.headers.get("authorization")?.replace(/^Bearer /i,"");if(!token)throw Error("Log eerst in");const admin=db();const {data,error}=await admin.auth.getUser(token);if(error||!data.user)throw Error("Ongeldige sessie");return {admin,user:data.user}}
+export const webhookUrl=()=>Deno.env.get("SUPABASE_URL")+"/functions/v1/mollie-webhook";
