@@ -17,7 +17,7 @@ export function Stories({session,profileId,onOpenMessages}:{session:Session;prof
  const [following,setFollowing]=useState<string[]>([]);
  useEffect(()=>{if(!supabase)return;void supabase.from("follows").select("following_id").eq("follower_id",me).then(({data})=>{if(data)setFollowing(data.map(x=>x.following_id))})},[me]);
  const visible=stories.filter(s=>new Date(s.expires_at).getTime()>now&&(profileId?s.user_id===profileId:following.includes(s.user_id)||s.user_id===me));
- const owners=[...new Set(visible.map(s=>s.user_id))];
+ const owners=[...new Set(visible.map(s=>s.user_id))].filter(id=>id!==me||profileId===me||visible.some(s=>s.user_id===me));
  const ownerStories=active?visible.filter(s=>s.user_id===active):[];
  const current=ownerStories[index];
  const mediaUrl=(s:Story)=>supabase!.storage.from("mingle-stories").getPublicUrl(s.media_path).data.publicUrl;
