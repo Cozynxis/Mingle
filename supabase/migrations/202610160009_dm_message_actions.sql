@@ -2,6 +2,8 @@
 alter table public.dm_messages add column if not exists edited_at timestamptz;
 alter table public.dm_messages add column if not exists deleted_at timestamptz;
 -- Soft-deleted messages cannot keep media references.
+alter table public.dm_messages drop constraint if exists dm_messages_check;
+alter table public.dm_messages add constraint dm_messages_nonempty_or_deleted check (deleted_at is not null or char_length(trim(body))>0 or attachment_path is not null);
 create or replace function public.dm_edit_message(message_id uuid, new_body text)
 returns void language plpgsql security definer set search_path=public as $$
 declare m public.dm_messages; me uuid:=auth.uid();
