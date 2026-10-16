@@ -4,7 +4,7 @@ import {emojiGroups} from "./PostTools";
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {Session} from "@supabase/supabase-js";
 import {supabase} from "./lib/supabase";
-import {Search,Plus,ArrowLeft,Send,Paperclip,Smile,Check,CheckCheck,ShieldBan,Trash2,Pencil,CheckCircle2,X,Image as ImageIcon,Lock,UserPlus,Settings2,Phone,Video} from "lucide-react";
+import {Search,Plus,ArrowLeft,Send,Paperclip,Smile,Check,CheckCheck,ShieldBan,Trash2,Pencil,X,Image as ImageIcon,Lock,UserPlus,Settings2,Phone,Video} from "lucide-react";
 import "./messages.css";
 import {VoiceRecorder,VoicePlayer} from "./VoiceMessages";
 import {CallPanel} from "./CallPanel";
