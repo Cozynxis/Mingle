@@ -1,7 +1,11 @@
 {
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "",
-  "releaseNotes": "De eerste Android-versie van Mingle.",
-  "required": false
+  "versionCode": 15,
+  "versionName": "2.0.3",
+  "apkUrl": "https://github.com/Cozynxis/Mingle/releases/download/v2.0.3/app-release.apk",
+  "title": "Mingle 2.0.3 — Support Center",
+  "description": "Nieuw: Support Center in het Meer-menu! Maak tickets aan, reageer op support, bekijk actieve en gesloten tickets en geniet van een verbeterde mobiele interface.",
+  "releaseNotes": "Support Center voor Android, ticketbeheer, gesloten tickets, verbeterde mobiele navigatie en bugfixes.",
+  "color": "#9465f5",
+  "required": false,
+  "enabled": true
 }
