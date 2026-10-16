@@ -28,3 +28,37 @@
 .premium-gradient-controls .premium-motion-check{display:flex;flex-direction:row;align-items:center;grid-column:1/-1}
 @media(max-width:560px){.premium-gradient-controls{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.premium-profile-shell.premium-gradient-moving,.premium-profile-shell .profile-page-avatar.premium-frame-neon,.premium-profile-shell .profile-page-avatar.premium-frame-galaxy,.premium-name-shimmer,.premium-name-rainbow,.premium-name-holographic,.premium-name-fire{animation:none!important}}
+
+/* Premium style gallery */
+.premium-picker-field{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0;font-weight:700}.premium-picker-field button{padding:11px 16px;border-radius:12px;border:1px solid #bd9cde77;background:#8762cc18;color:inherit;cursor:pointer}.premium-picker-overlay{position:fixed;inset:0;z-index:100000;background:#080713c9;display:flex;align-items:center;justify-content:center;padding:18px}.premium-picker-modal{width:min(720px,100%);max-height:85vh;overflow:auto;border:1px solid #ad8ddd;border-radius:20px;background:var(--card,#211d2e);padding:22px;box-shadow:0 25px 80px #0009}.premium-picker-modal>button{padding:10px 18px;border:1px solid #c5a5df;border-radius:10px;background:transparent;color:inherit;cursor:pointer}.premium-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin-top:20px}.premium-picker-grid>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:120px;padding:12px 8px;border:1px solid #b7a0d244;border-radius:14px;background:#9b79df0d;color:inherit;cursor:pointer;text-transform:capitalize}.premium-picker-grid>button:hover{border-color:#e6b96c;background:#b695eb20}.premium-picker-grid .premium-avatar-frame{width:60px;height:60px}.premium-picker-grid strong{font-size:19px}
+.premium-frame-diamond{border:4px solid #bff7ff!important;box-shadow:0 0 0 3px #79b8ff,0 0 18px #bff7ff99,0 0 28px #79b8ff77!important}
+.premium-frame-ruby{border:4px solid #ff667f!important;box-shadow:0 0 0 3px #a40037,0 0 18px #ff667f99,0 0 28px #a4003777!important}
+.premium-frame-emerald{border:4px solid #60ffbc!important;box-shadow:0 0 0 3px #087a50,0 0 18px #60ffbc99,0 0 28px #087a5077!important}
+.premium-frame-sapphire{border:4px solid #76caff!important;box-shadow:0 0 0 3px #174ad6,0 0 18px #76caff99,0 0 28px #174ad677!important}
+.premium-frame-amethyst{border:4px solid #df9dff!important;box-shadow:0 0 0 3px #8232ba,0 0 18px #df9dff99,0 0 28px #8232ba77!important}
+.premium-frame-sunset{border:4px solid #ffc65c!important;box-shadow:0 0 0 3px #fd517b,0 0 18px #ffc65c99,0 0 28px #fd517b77!important}
+.premium-frame-ice{border:4px solid #e8ffff!important;box-shadow:0 0 0 3px #63cfff,0 0 18px #e8ffff99,0 0 28px #63cfff77!important}
+.premium-frame-flame{border:4px solid #ffde6d!important;box-shadow:0 0 0 3px #fc4a16,0 0 18px #ffde6d99,0 0 28px #fc4a1677!important}
+.premium-frame-electric{border:4px solid #faff74!important;box-shadow:0 0 0 3px #57a5ff,0 0 18px #faff7499,0 0 28px #57a5ff77!important}
+.premium-frame-cosmic{border:4px solid #f68bff!important;box-shadow:0 0 0 3px #3034aa,0 0 18px #f68bff99,0 0 28px #3034aa77!important}
+.premium-frame-royal{border:4px solid #f7d978!important;box-shadow:0 0 0 3px #6f4ab5,0 0 18px #f7d97899,0 0 28px #6f4ab577!important}
+.premium-frame-rose{border:4px solid #ffb8cf!important;box-shadow:0 0 0 3px #e34e91,0 0 18px #ffb8cf99,0 0 28px #e34e9177!important}
+.premium-frame-mint{border:4px solid #a4ffdc!important;box-shadow:0 0 0 3px #2cae9c,0 0 18px #a4ffdc99,0 0 28px #2cae9c77!important}
+.premium-frame-obsidian{border:4px solid #9da3b7!important;box-shadow:0 0 0 3px #252635,0 0 18px #9da3b799,0 0 28px #25263577!important}
+.premium-frame-pearl{border:4px solid #ffffff!important;box-shadow:0 0 0 3px #b9c2dc,0 0 18px #ffffff99,0 0 28px #b9c2dc77!important}
+.premium-frame-prism{border:4px solid #ff80c6!important;box-shadow:0 0 0 3px #65d7ff,0 0 18px #ff80c699,0 0 28px #65d7ff77!important}
+.premium-frame-cyber{border:4px solid #16f5ee!important;box-shadow:0 0 0 3px #f252e5,0 0 18px #16f5ee99,0 0 28px #f252e577!important}
+.premium-frame-solar{border:4px solid #fff08a!important;box-shadow:0 0 0 3px #ff9c29,0 0 18px #fff08a99,0 0 28px #ff9c2977!important}
+.premium-frame-lunar{border:4px solid #dce6ff!important;box-shadow:0 0 0 3px #7d8ecb,0 0 18px #dce6ff99,0 0 28px #7d8ecb77!important}
+.premium-frame-aurora{border:4px solid #73ffc7!important;box-shadow:0 0 0 3px #9774ff,0 0 18px #73ffc799,0 0 28px #9774ff77!important}
+.premium-frame-plasma{border:4px solid #e687ff!important;box-shadow:0 0 0 3px #ff689c,0 0 18px #e687ff99,0 0 28px #ff689c77!important}
+.premium-frame-frost{border:4px solid #d6ffff!important;box-shadow:0 0 0 3px #619eff,0 0 18px #d6ffff99,0 0 28px #619eff77!important}
+.premium-frame-crimson{border:4px solid #ff7c82!important;box-shadow:0 0 0 3px #9c1238,0 0 18px #ff7c8299,0 0 28px #9c123877!important}
+.premium-frame-ocean{border:4px solid #7be9ff!important;box-shadow:0 0 0 3px #1360a6,0 0 18px #7be9ff99,0 0 28px #1360a677!important}
+.premium-frame-starlight{border:4px solid #fff6c2!important;box-shadow:0 0 0 3px #999bff,0 0 18px #fff6c299,0 0 28px #999bff77!important}
+.premium-frame-toxic{border:4px solid #cbff54!important;box-shadow:0 0 0 3px #4a9e22,0 0 18px #cbff5499,0 0 28px #4a9e2277!important}
+.premium-frame-candy{border:4px solid #ff9fdd!important;box-shadow:0 0 0 3px #8bd6ff,0 0 18px #ff9fdd99,0 0 28px #8bd6ff77!important}
+.premium-frame-bronze{border:4px solid #e7ad70!important;box-shadow:0 0 0 3px #945225,0 0 18px #e7ad7099,0 0 28px #94522577!important}
+.premium-frame-silver{border:4px solid #e3e7f0!important;box-shadow:0 0 0 3px #8896ac,0 0 18px #e3e7f099,0 0 28px #8896ac77!important}
+.premium-frame-rainbow{border:4px solid #ff6b98!important;box-shadow:0 0 0 3px #4dc8ff,0 0 18px #ff6b9899,0 0 28px #4dc8ff77!important}
+.premium-frame-rainbow,.premium-frame-prism,.premium-frame-cosmic,.premium-frame-aurora,.premium-frame-plasma{animation:premiumPulse 3s ease-in-out infinite}@media(prefers-reduced-motion:reduce){.premium-frame-rainbow,.premium-frame-prism,.premium-frame-cosmic,.premium-frame-aurora,.premium-frame-plasma{animation:none}}
