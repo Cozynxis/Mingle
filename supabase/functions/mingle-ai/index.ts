@@ -37,11 +37,23 @@ Deno.serve(async(req)=>{
  }
  const content=imageUrl?[{type:"text",text:body||"Beschrijf deze afbeelding."},{type:"image_url",image_url:{url:imageUrl}}]:body;
  const messages=[{role:"system",content:"Je bent Mingle AI, een behulpzame, vriendelijke AI-assistent binnen een sociaal platform. Antwoord meestal in de taal van de gebruiker. Wees eerlijk, duidelijk, natuurlijk en respecteer privacy. Je bent een AI, geen mens. Geef geen instructies die gevaar, misbruik of schade bevorderen. Doe geen ongegronde claims over afbeeldingen."},...(history||[]).reverse().map(m=>({role:m.role,content:m.body})),{role:"user",content}];
- const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),35000);
- let response:Response;
- try{response=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:imageUrl?"meta-llama/llama-4-scout-17b-16e-instruct":premium?"llama-3.3-70b-versatile":"llama-3.3-70b-versatile",messages,temperature:.7,max_completion_tokens:premium?1400:750}),signal:controller.signal})}catch{return json({error:"AI is tijdelijk niet bereikbaar."},502)}finally{clearTimeout(timeout)}
- const result=await response.json().catch(()=>({}));
- if(!response.ok){const providerMessage=typeof result?.error?.message==="string"?result.error.message:"Onbekende Groq-fout";console.error("Mingle AI Groq error",response.status,providerMessage);return json({error:response.status===429?"Groq-limiet bereikt. Probeer later opnieuw.":response.status===401?"Groq API-sleutel is ongeldig (401).":response.status===403?"Groq weigert toegang tot dit model (403).":response.status===404?"Groq-model niet gevonden (404): "+providerMessage.slice(0,280):response.status===400?"Groq heeft het verzoek afgewezen (400): "+providerMessage.slice(0,280):"Groq fout "+response.status+": "+providerMessage.slice(0,280)},502)}
+ // Ask Groq which models this API key can actually use instead of hardcoding retired models.
+ let availableModels:string[]=[];
+ try{const catalog=await fetch("https://api.groq.com/openai/v1/models",{headers:{"Authorization":"Bearer "+key}});if(catalog.ok){const models=await catalog.json();availableModels=(models.data||[]).filter((m:{id?:string;active?:boolean})=>m.active!==false&&typeof m.id==="string").map((m:{id:string})=>m.id)}}catch{/* Catalog errors handled by chat request below */}
+ const preferred=imageUrl?["meta-llama/llama-4-scout-17b-16e-instruct","meta-llama/llama-4-maverick-17b-128e-instruct"]:premium?["llama-3.3-70b-versatile","llama-3.1-8b-instant","openai/gpt-oss-20b"]:["llama-3.1-8b-instant","openai/gpt-oss-20b","llama-3.3-70b-versatile"];
+ const visionModel=(id:string)=>/vision|scout|maverick/i.test(id);
+ const candidates=availableModels.length?preferred.filter(id=>availableModels.includes(id)):[...preferred];
+ if(availableModels.length&&!candidates.length){const fallback=availableModels.find(id=>imageUrl?visionModel(id):!/whisper|tts|guard|safeguard|embed|transcri/i.test(id));if(fallback)candidates.push(fallback)}
+ if(!candidates.length)return json({error:imageUrl?"Geen afbeeldingsmodel beschikbaar voor jouw Groq-account.":"Geen geschikt chatmodel beschikbaar voor jouw Groq-account."},503);
+ let response:Response|null=null;let result:any={};let usedModel="";
+ for(const model of candidates){
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),35000);
+  try{response=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,messages,temperature:.7,max_completion_tokens:premium?1400:750}),signal:controller.signal});result=await response.json().catch(()=>({}));usedModel=model}catch{return json({error:"AI is tijdelijk niet bereikbaar."},502)}finally{clearTimeout(timeout)}
+  if(response.ok||![400,404].includes(response.status))break;
+  console.warn("Mingle AI model unavailable",model,response.status);
+ }
+ if(!response)return json({error:"Geen AI-model beschikbaar."},503);
+ if(!response.ok){const providerMessage=typeof result?.error?.message==="string"?result.error.message:"Onbekende Groq-fout";console.error("Mingle AI Groq error",usedModel,response.status,providerMessage);return json({error:response.status===429?"Groq-limiet bereikt. Probeer later opnieuw.":response.status===401?"Groq API-sleutel is ongeldig (401).":response.status===403?"Groq weigert toegang tot dit model (403).":response.status===404?"Groq-model niet beschikbaar (404): "+providerMessage.slice(0,280):"Groq fout "+response.status+": "+providerMessage.slice(0,280)},502)}
  const answer=result?.choices?.[0]?.message?.content;
  if(typeof answer!=="string"||!answer.trim())return json({error:"Geen antwoord ontvangen."},502);
  const {error:saveError}=await admin.from("mingle_ai_messages").insert([{user_id:user.id,role:"user",body,image_path:imagePath||null},{user_id:user.id,role:"assistant",body:answer.trim()}]);
