@@ -70,3 +70,21 @@
  .dm-input-row .dm-send{flex:0 0 auto}
  .dm-emoji-picker{bottom:calc(100% + 8px)}
 }
+
+/* Mingle 1.7 — message actions, edit mode and readable call controls */
+.dm-meta span.read{color:#48a8ff;text-shadow:0 0 8px #48a8ff77}
+.dm-meta span.read svg{stroke:#48a8ff;filter:drop-shadow(0 0 3px #48a8ff55)}
+.dm-deleted{opacity:.76}
+.dm-deleted-label{display:flex;align-items:center;gap:7px;font-style:italic;color:var(--muted);margin:0!important}
+.dm-edited-label{display:block;text-align:right;font-size:10px;color:var(--muted);margin-top:3px}
+.dm-message-actions{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 3px;padding:5px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.dm-message-actions button{display:flex;align-items:center;gap:5px;padding:7px 9px;border:0;border-radius:8px;background:var(--hover);color:var(--text);font-size:12px;cursor:pointer}
+.dm-message-actions button:disabled{opacity:.4}
+.dm-editing-banner{display:flex;align-items:center;gap:8px;color:#a99aff;font-size:12px;padding:4px 8px 10px}
+.dm-editing-banner button{margin-left:auto;background:transparent;border:0;color:var(--muted);cursor:pointer}
+.mingle-call-controls{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px}
+.mingle-call-control{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:78px;min-height:68px;padding:11px 13px;border-radius:16px;background:var(--hover);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.mingle-call-control small{font-size:11px;font-weight:650}
+.mingle-call-control.is-off{background:#b77cff28;color:#bc9cff;border-color:#a98cff66}
+.mingle-call-control.hangup{background:#d94b64;color:#fff;border-color:#d94b64}
+@media(max-width:560px){.mingle-call-controls{gap:9px}.mingle-call-control{min-width:70px;min-height:64px;padding:9px 11px}.dm-message-actions{max-width:100%}}
