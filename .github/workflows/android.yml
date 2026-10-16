@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v1.9.0: DM interactions release.
+# Mingle v2.0.0: Stories release.
 on:
   workflow_dispatch:
   push:
@@ -101,10 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v1.9.0 >/dev/null 2>&1; then
-            echo "Release v1.9.0 already exists; keeping the published APK unchanged."
+          if gh release view v2.0.0 >/dev/null 2>&1; then
+            echo "Release v2.0.0 already exists; keeping the published APK unchanged."
           else
-            gh release create v1.9.0 android/app/build/outputs/apk/release/app-release.apk#Mingle-1.9.0.apk --title "Mingle Android 1.9.0" --notes "Mingle Messages Plus: swipe to reply, emoji reactions, forward and copy messages, online status, and unread badges."
+            gh release create v2.0.0 android/app/build/outputs/apk/release/app-release.apk#Mingle-2.0.0.apk --title "Mingle Android 2.0.0" --notes "Mingle Stories: photo and video stories, story editor, viewers, and DM replies."
           fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
