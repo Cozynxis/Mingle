@@ -96,3 +96,10 @@
 .dm-reactions button.mine{border-color:#9985ff;background:#9985ff22}
 .dm-forward-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto}
 .dm-forward-list button{padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--hover);color:var(--text);cursor:pointer}
+
+.dm-chat .dm-bubble-wrap.mine .dm-bubble{background:var(--dm-accent,#8070ba)!important}
+.dm-date-holder{text-align:center;width:100%;min-height:0}
+.dm-date-divider{display:inline-block;margin:14px auto 10px;padding:5px 12px;border-radius:18px;background:var(--hover);color:var(--muted);font-size:11px;font-weight:650}
+.dm-color-options{display:flex;flex-wrap:wrap;gap:7px;padding:8px;max-width:220px}
+.dm-color-options button{width:27px;height:27px;border-radius:50%;border:2px solid #ffffff55;padding:0;cursor:pointer}
+.dm-color-options button:hover{transform:scale(1.1)}
