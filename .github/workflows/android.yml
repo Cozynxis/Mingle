@@ -4,9 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'capacitor.config.ts'
-      - 'scripts/android_*.py'
       - '.github/workflows/android.yml'
+concurrency:
+  group: mingle-android-release
+  cancel-in-progress: false
 permissions:
   contents: write
 jobs:
