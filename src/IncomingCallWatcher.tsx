@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from "react";
 import {Phone,Video,X} from "lucide-react";
 import {supabase} from "./lib/supabase";
+import {startRingtone,stopRingtone} from "./MingleSounds";
 type Offer={id:string;connection_id:string;call_id:string;created_at:string;payload:{video?:boolean}};
 const ignored=new Set<string>();
 export function IncomingCallWatcher({userId,onOpen}:{userId:string;onOpen:(id:string)=>void}){
@@ -28,9 +29,10 @@ export function IncomingCallWatcher({userId,onOpen}:{userId:string;onOpen:(id:st
   document.addEventListener("visibilitychange",onFocus);
   return()=>{live=false;clearInterval(timer);window.removeEventListener("mingle-refresh-incoming-calls",onFocus);document.removeEventListener("visibilitychange",onFocus)};
  },[userId]);
+ useEffect(()=>{if(offer)startRingtone();else stopRingtone();return()=>stopRingtone()},[offer?.call_id]);
  if(!offer)return null;
- const dismiss=()=>{ignored.add(offer.call_id);setOffer(null)};
+ const dismiss=()=>{stopRingtone();ignored.add(offer.call_id);setOffer(null)};
  return <div role="alertdialog" aria-label="Inkomende Mingle oproep" className="mingle-incoming-toast">
  <strong>{offer.payload?.video?"Inkomend videogesprek":"Inkomende spraakoproep"}</strong><p>Er belt iemand via Mingle.</p>
- <div className="mingle-incoming-actions"><button onClick={dismiss}><X size={17}/> Sluiten</button><button onClick={()=>{ignored.add(offer.call_id);openRef.current(offer.connection_id);setOffer(null)}}>{offer.payload?.video?<Video size={17}/>:<Phone size={17}/>} Open gesprek</button></div></div>;
+ <div className="mingle-incoming-actions"><button onClick={dismiss}><X size={17}/> Sluiten</button><button onClick={()=>{stopRingtone();ignored.add(offer.call_id);openRef.current(offer.connection_id);setOffer(null)}}>{offer.payload?.video?<Video size={17}/>:<Phone size={17}/>} Open gesprek</button></div></div>;
 }
