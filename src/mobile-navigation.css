@@ -1,0 +1,24 @@
+.mingle-mobile-navigation{display:none}
+@media(max-width:560px){
+  html{overflow-x:hidden}body{min-width:0;overflow-x:hidden}
+  .app{width:100%;max-width:100%;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));min-height:100dvh}
+  .app>.sidebar{display:none!important}
+  .main{width:100%;min-width:0;overflow-x:clip}
+  .mingle-mobile-navigation{display:block}
+  .mingle-mobile-tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:7px 6px calc(9px + env(safe-area-inset-bottom,0px));min-height:calc(66px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -8px 25px #0002}
+  .mingle-mobile-tabs button{position:relative;min-width:0;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:10px;font-weight:600;touch-action:manipulation}
+  .mingle-mobile-tabs button.selected{color:var(--purple);background:var(--hover)}
+  .mingle-mobile-tabs i{position:absolute;top:0;left:55%;font-style:normal;font-size:10px;color:white;background:#df4770;padding:2px 5px;border-radius:12px}
+  .mingle-mobile-shade{position:fixed;inset:0;z-index:51;background:#0009;border:0}
+  .mingle-mobile-sheet{position:fixed;z-index:52;bottom:calc(67px + env(safe-area-inset-bottom,0px));left:8px;right:8px;max-height:min(70dvh,580px);overflow:auto;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:0 12px 40px #0006}
+  .mingle-mobile-sheet-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:18px}
+  .mingle-mobile-sheet-title button{border:0;background:none;color:var(--text);padding:8px}
+  .mingle-mobile-sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .mingle-mobile-sheet-grid button{min-width:0;min-height:52px;display:flex;align-items:center;gap:9px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:13px;background:var(--surface2);color:var(--text);font-size:13px;touch-action:manipulation}
+  .mingle-mobile-sheet-grid button.selected{border-color:var(--purple);color:var(--purple)}
+  .topbar{padding:calc(13px + env(safe-area-inset-top,0px)) 16px 13px}
+  .profile-page,.settings,.composer,.feed-post{min-width:0;max-width:100%}
+  .overlay{padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px))}
+  .auth-modal{max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+  input,textarea,select{max-width:100%}
+}
