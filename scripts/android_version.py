@@ -1,4 +1,5 @@
 """Set a stable, explicit Android version for the consolidated Mingle test APK."""
+# MINGLE_UPDATE_TEST_MARKER_1: harmless temporary marker; remove for version 1.2.1.
 from pathlib import Path
 import re
 p=Path("android/app/build.gradle")
