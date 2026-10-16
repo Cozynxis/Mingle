@@ -88,3 +88,11 @@
 .mingle-call-control.is-off{background:#b77cff28;color:#bc9cff;border-color:#a98cff66}
 .mingle-call-control.hangup{background:#d94b64;color:#fff;border-color:#d94b64}
 @media(max-width:560px){.mingle-call-controls{gap:9px}.mingle-call-control{min-width:70px;min-height:64px;padding:9px 11px}.dm-message-actions{max-width:100%}}
+
+.dm-unread-pill{background:#8674ff;color:white;border-radius:16px;padding:2px 7px;font-size:11px}
+.dm-quoted{display:flex;gap:6px;width:100%;border:0;border-left:3px solid #9985ff;background:#9985ff22;color:inherit;padding:8px;margin:6px 0;text-align:left;cursor:pointer}
+.dm-reactions,.dm-reaction-picker{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.dm-reactions button,.dm-reaction-picker button{border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);padding:5px 9px;cursor:pointer}
+.dm-reactions button.mine{border-color:#9985ff;background:#9985ff22}
+.dm-forward-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto}
+.dm-forward-list button{padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--hover);color:var(--text);cursor:pointer}
