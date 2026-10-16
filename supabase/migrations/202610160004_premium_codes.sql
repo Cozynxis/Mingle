@@ -35,7 +35,7 @@ create policy "premium_redemptions_admin_read" on public.premium_code_redemption
 -- Codes are stored as SHA-256 digests and revealed only at creation.
 create or replace function public.admin_create_premium_code(
  p_label text,p_code text,p_duration_days integer,p_max_uses integer default null,p_expires_at timestamptz default null
-) returns uuid language plpgsql security definer set search_path=public as $$
+) returns uuid language plpgsql security definer set search_path=public,extensions as $
 declare v_id uuid;v_code text:=upper(trim(p_code));
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
@@ -53,7 +53,7 @@ end $$;
 
 create or replace function public.admin_update_premium_code(
  p_id uuid,p_label text,p_max_uses integer,p_expires_at timestamptz,p_enabled boolean
-) returns void language plpgsql security definer set search_path=public as $$
+) returns void language plpgsql security definer set search_path=public,extensions as $
 declare v_used integer;
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
@@ -68,7 +68,7 @@ begin
 end $$;
 
 create or replace function public.admin_delete_premium_code(p_id uuid)
-returns void language plpgsql security definer set search_path=public as $$
+returns void language plpgsql security definer set search_path=public,extensions as $
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
  -- Preserve redemption history: deleting a code means disabling it.
@@ -79,7 +79,7 @@ begin
 end $$;
 
 create or replace function public.redeem_premium_code(p_code text)
-returns timestamptz language plpgsql security definer set search_path=public as $$
+returns timestamptz language plpgsql security definer set search_path=public,extensions as $
 declare v_code public.premium_codes%rowtype;v_current public.premium_subscriptions%rowtype;v_until timestamptz;v_base timestamptz;
 begin
  if auth.uid() is null then raise exception 'Log eerst in';end if;
