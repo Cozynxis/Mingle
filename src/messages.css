@@ -13,3 +13,48 @@
 .dm-confirm-actions button{border:1px solid var(--border);background:var(--hover);color:var(--text);border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:650}
 .dm-confirm-actions button.danger{background:#c74458;color:white;border-color:#c74458}
 .dm-confirm-actions button:disabled{opacity:.5;cursor:wait}
+
+/* Mingle 1.5 — mobile-first messaging and calls */
+.dm-app,.dm-chat,.dm-sidebar{min-height:0;box-sizing:border-box}
+.dm-messages{min-height:0;overscroll-behavior:contain}
+.dm-bubble{min-width:0}
+.dm-attachment{max-width:100%;min-width:0}
+.dm-attachment>div{max-width:100%}
+.dm-attachment button{flex-shrink:0}
+.dm-attachment small{white-space:nowrap}
+.dm-chat-header{min-width:0}
+.dm-chat-header strong,.dm-chat-header small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-chat-header>button{flex-shrink:0}
+.dm-composer{flex-shrink:0}
+.dm-input-row textarea{resize:none;min-height:43px}
+.dm-input-row>button,.dm-input-row>.dm-emoji-anchor button,.dm-attach{flex-shrink:0}
+.dm-emoji-picker{max-width:calc(100vw - 24px)}
+@keyframes dm-record-pulse{0%,100%{box-shadow:0 0 0 0 #ff647d44}50%{box-shadow:0 0 0 7px #ff647d00}}
+.mingle-incoming-toast{position:fixed;right:16px;top:calc(12px + env(safe-area-inset-top,0px));z-index:99999;background:var(--surface,#211c32);color:var(--text,#fff);padding:18px;border:1px solid var(--border,#ffffff20);border-radius:18px;box-shadow:0 12px 45px #0006;width:min(330px,calc(100vw - 32px));box-sizing:border-box}
+.mingle-incoming-toast p{font-size:13px;color:var(--muted,#aaa)}
+.mingle-incoming-actions{display:flex;gap:9px;margin-top:14px}
+.mingle-incoming-actions button{display:flex;align-items:center;justify-content:center;gap:7px;flex:1;border:0;border-radius:12px;padding:11px 8px;background:var(--hover,#ffffff15);color:var(--text,#fff);font-weight:600}
+.mingle-incoming-actions button:last-child{background:#7967ed;color:#fff}
+.mingle-call-dialog{max-width:460px;text-align:center;border-radius:25px;padding:30px 22px}
+.mingle-call-avatar{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;font-size:31px;color:#fff;background:linear-gradient(145deg,#8e78ff,#475bb9);box-shadow:0 12px 40px #7767e744}
+.mingle-call-dialog .dm-confirm-actions{justify-content:center;flex-wrap:wrap}
+.mingle-call-dialog .dm-confirm-actions button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px}
+.mingle-call-dialog .dm-confirm-actions button:last-child{background:#d94b64;color:white;border-color:#d94b64}
+@media(max-width:780px){
+ .dm-app{height:calc(100dvh - 118px);min-height:0;width:100%;max-width:100%;border-radius:0}
+ .dm-sidebar,.dm-chat{min-width:0;width:100%;flex:1}
+ .dm-sidebar-header{padding:12px}
+ .dm-chat-header{gap:5px;padding:9px 7px}
+ .dm-chat-header .dm-avatar{width:34px;height:34px}
+ .dm-chat-header button{padding:8px 6px}
+ .dm-messages{padding:12px 9px;gap:8px}
+ .dm-bubble{max-width:87%;padding:9px 11px}
+ .dm-composer{padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+ .dm-input-row{gap:2px;align-items:center}
+ .dm-input-row textarea{padding:10px 8px;font-size:16px}
+ .dm-input-row>button,.dm-input-row>.dm-emoji-anchor button,.dm-attach{padding:7px}
+ .dm-emoji-picker{left:-92px;width:min(310px,calc(100vw - 24px))}
+ .dm-overlay{padding:12px}
+ .dm-dialog{max-height:calc(100dvh - 30px);padding:18px}
+ .mingle-call-dialog{width:100%;padding:24px 12px}
+}
