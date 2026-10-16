@@ -67,3 +67,64 @@
 @media(max-width:1180px){.admin-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:850px){.admin-sidebar{width:266px;position:fixed;left:0;top:0;bottom:0;height:100dvh;transform:translateX(-105%);transition:transform .22s ease;box-shadow:20px 0 60px #0008;z-index:102}.admin-sidebar-open{transform:translateX(0)}.admin-sidebar .admin-brand span,.admin-sidebar .admin-nav-title{display:flex}.admin-sidebar>button{font-size:13px;justify-content:flex-start;padding:12px 14px}.admin-sidebar-bottom a,.admin-sidebar-bottom button{font-size:13px;justify-content:flex-start}.admin-sidebar-close{display:inline-flex;border:0;background:transparent;color:#c5b4dd;cursor:pointer}.admin-mobile-backdrop{position:fixed;inset:0;background:#000a;border:0;z-index:101}.admin-menu-trigger{display:grid;place-items:center;border:1px solid #46375d;border-radius:12px;padding:10px;color:#d9c8ff;background:#241d36;cursor:pointer;flex-shrink:0}.admin-main{width:100%;padding:24px 18px 55px}.admin-top{justify-content:flex-start}.admin-top>div:nth-child(2){flex:1;min-width:0}.admin-top-actions{margin-left:auto}.admin-welcome-art{height:105px;width:105px;border-radius:27px}.admin-welcome-art svg{width:55px}.admin-card{padding:20px}}
 @media(max-width:580px){.admin-main{padding:16px 11px 40px}.admin-top{gap:9px;align-items:flex-start}.admin-top h1{font-size:24px}.admin-top small{font-size:9px}.admin-top-description{font-size:11px}.admin-live-indicator{display:none}.admin-top-actions>button{padding:10px}.admin-welcome{padding:22px 17px}.admin-welcome-art{display:none}.admin-quick-grid{grid-template-columns:minmax(0,1fr)}.admin-stats{gap:8px}.admin-stats>div{padding:15px}.admin-stats strong{font-size:25px}.admin-card{padding:15px}.admin-subtabs{margin-bottom:14px}.admin-list-row{gap:10px}.admin-badge-controls{gap:8px}.admin-login{padding:25px 20px}.admin-modal{padding:19px}.admin-table-wrap table{min-width:500px}}
+
+/* Admin Control 3.0 — distinct console layout */
+.admin-layout{background:#090d16;color:#e8eefb}
+.admin-sidebar{width:284px;background:#0c1220;border-right:1px solid #253049;padding:23px 13px}
+.admin-main{width:calc(100% - 284px);background:radial-gradient(ellipse at 100% 0%,#26335140,transparent 44%),#0d1320}
+.admin-brand{border-bottom-color:#273449}
+.admin-brand strong{color:#79b6ff}
+.admin-nav-title{color:#7e91ae}
+.admin-nav-group{margin:3px 0}
+.admin-nav-parent{display:flex;align-items:center;gap:13px;width:100%;min-height:45px;border:0;border-radius:11px;background:transparent;color:#98a9c2;text-align:left;padding:11px 13px;cursor:pointer;font-size:13px;font-weight:650;transition:background .2s,color .2s}
+.admin-nav-parent span{flex:1}
+.admin-nav-parent:hover,.admin-nav-parent.active{background:#20334d;color:#eff7ff}
+.admin-nav-parent.active{box-shadow:inset 3px 0 #4eaeff}
+.admin-nav-parent>svg:last-child:not(:first-child){flex-shrink:0}
+.admin-nav-children{padding:5px 0 8px 22px;margin-left:20px;border-left:1px solid #32415a;display:flex;flex-direction:column;gap:3px;animation:admin-nav-reveal .18s ease-out}
+.admin-nav-children button{display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#8297b5;padding:10px 13px;border-radius:9px;text-align:left;font-size:12px;cursor:pointer}
+.admin-nav-children button:hover{color:#e4f1ff;background:#18273b}
+.admin-nav-children button.active{background:#1f3c59;color:#a9d7ff;font-weight:750}
+.admin-nav-dot{width:5px;height:5px;border-radius:50%;background:#506480}
+.admin-nav-children button.active .admin-nav-dot{background:#70c1ff;box-shadow:0 0 10px #70c1ff}
+@keyframes admin-nav-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.admin-top h1{color:#f2f7ff}
+.admin-top small{color:#6dbbff}
+.admin-top-actions>button{background:#18273b;border-color:#334660;color:#9fcfff}
+.admin-card{background:#131e2e;border-color:#293b53;box-shadow:0 14px 50px #0002}
+.admin-stats>div{background:linear-gradient(145deg,#192a40,#121d2d);border-color:#2b405b}
+.admin-stats svg{color:#6ebeff}
+.admin-welcome{background:radial-gradient(circle at 90% 40%,#308fd755,transparent 40%),linear-gradient(120deg,#16385b,#142238);border-color:#397ab366}
+.admin-welcome span{color:#8cceff}
+.admin-welcome-art{background:linear-gradient(145deg,#3da7ef,#23538b);box-shadow:0 16px 70px #2677c655}
+.admin-quick-grid>button,.admin-quick-grid>a{background:#17263a;border-color:#31465f}
+.admin-quick-grid>button:hover,.admin-quick-grid>a:hover{background:#1e3854;border-color:#55b1ff}
+.admin-quick-icon{background:#2488d329;color:#7dc7ff}
+.admin-quick-grid>button>svg,.admin-quick-grid>a>svg{color:#7eabc8}
+.admin-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px}
+.admin-role-grid>div{display:flex;flex-direction:column;gap:9px;background:#1b2a40;border:1px solid #30465f;border-radius:14px;padding:20px}
+.admin-role-grid strong{font-size:29px;color:#91ceff}
+.admin-role-grid span{font-size:12px;color:#a1b2ca;text-transform:capitalize}
+.admin-sidebar-bottom a:first-child{background:#225b8b2a;border-color:#3379a366;color:#a6d9ff}
+.admin-gate{background:radial-gradient(circle at 70% 10%,#1e4770,transparent 44%),#070c15;padding:clamp(12px,3vw,40px)}
+.admin-login-shell{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);max-width:1080px;width:100%;min-height:600px;background:#0f1b2a;border:1px solid #304761;border-radius:28px;overflow:hidden;box-shadow:0 35px 100px #0008}
+.admin-login-visual{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:36px;background:radial-gradient(circle at 70% 60%,#276ca999,transparent 45%),linear-gradient(145deg,#16395c,#0c2037);overflow:hidden}
+.admin-login-visual:before{content:"";position:absolute;inset:0;opacity:.12;background-image:linear-gradient(#b5dbff 1px,transparent 1px),linear-gradient(90deg,#b5dbff 1px,transparent 1px);background-size:45px 45px;mask-image:linear-gradient(90deg,transparent,#000)}
+.admin-login-visual-brand{position:relative;z-index:1;display:flex;align-items:center;gap:13px;letter-spacing:2px;font-size:13px}
+.admin-login-visual-center{position:relative;z-index:1;margin:40px 0}
+.admin-login-visual-center>span{color:#89cbff;font-size:10px;letter-spacing:2.5px;font-weight:800}
+.admin-login-visual-center h2{font-size:clamp(34px,4.5vw,61px);line-height:1.06;letter-spacing:-2.5px;max-width:450px;margin:15px 0}
+.admin-login-visual-center p{max-width:370px;color:#b5cbe1;line-height:1.8;font-size:14px}
+.admin-login-visual-orbit{display:grid;place-items:center;width:158px;height:158px;margin-top:30px;border:1px solid #75bfff66;border-radius:38px;transform:rotate(-12deg);background:#3f96d133;box-shadow:0 0 0 15px #3c9de111,0 0 0 31px #3c9de10b;color:#b7e3ff}
+.admin-login-visual>small{position:relative;color:#8aabc8;font-size:10px;letter-spacing:1.6px}
+.admin-login-shell .admin-login{align-self:center;max-width:none;width:100%;background:transparent;border:0;box-shadow:none;padding:clamp(24px,4vw,55px);text-align:left}
+.admin-login-shell .admin-login>img{margin:24px 0 10px;width:60px;height:60px}
+.admin-login-shell .admin-login h1{font-size:clamp(26px,3vw,34px);color:#f1f8ff}
+.admin-login-shell .admin-login form{gap:16px}
+.admin-login-shell .admin-login input{background:#0b1523;border-color:#344b65}
+.admin-login-shell .admin-login input:focus{border-color:#6abaff;box-shadow:0 0 0 3px #3296e522}
+.admin-login-shell .admin-login .admin-primary{background:linear-gradient(135deg,#268de1,#225fae);width:100%}
+.admin-login-shell .admin-login-kicker{color:#8ccfff;background:#2b8ccf22;border-color:#3688c855}
+.admin-login-shell .admin-login a{color:#91caff}
+@media(max-width:850px){.admin-sidebar{width:284px}.admin-main{width:100%}.admin-login-shell{grid-template-columns:1fr;max-width:490px;min-height:0}.admin-login-visual{padding:23px;min-height:135px}.admin-login-visual-center{margin:15px 0 0}.admin-login-visual-center h2{font-size:26px;letter-spacing:-.7px;margin:8px 0}.admin-login-visual-center p,.admin-login-visual-orbit,.admin-login-visual>small{display:none}.admin-login-shell .admin-login{padding:25px}}
+@media(max-width:480px){.admin-login-shell{border-radius:19px}.admin-login-visual{min-height:120px}.admin-login-visual-brand img{width:32px;height:32px}.admin-login-visual-center h2{font-size:23px}.admin-nav-parent{min-height:45px}}
