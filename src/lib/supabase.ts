@@ -1,9 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { Capacitor } from "@capacitor/core";
 import { supabaseConfig } from "./config";
 
 const { url, publishableKey } = supabaseConfig;
 const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) && publishableKey.startsWith("sb_publishable_") && publishableKey !== "sb_publishable_REPLACE_ME";
 
+const nativeAndroid = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
 const TAB_KEY = "mingle-v3-tab-identity";
 const id = () => crypto.randomUUID();
 
@@ -22,27 +24,28 @@ const tabId = (() => {
     return id();
   }
 })();
-const storageEntry = `mingle-v3-auth-${tabId}`;
+const storageEntry = nativeAndroid ? "mingle-v3-android-auth" : `mingle-v3-auth-${tabId}`;
+const authStorage: Storage = nativeAndroid ? localStorage : sessionStorage;
 // Restore sessions saved by the previous Mingle auth implementation during
 // the migration to stable per-tab storage. Keep the same key on refresh.
 try {
-  if (!sessionStorage.getItem(storageEntry)) {
+  if (!authStorage.getItem(storageEntry)) {
     const previous = sessionStorage.getItem("mingle-auth-current-session");
     if (previous) {
-      sessionStorage.setItem(storageEntry, previous);
+      authStorage.setItem(storageEntry, previous);
       sessionStorage.removeItem("mingle-auth-current-session");
     }
   }
 } catch { /* private browsing or disabled storage */ }
 const tabStorage = {
   getItem: (_key: string): string | null => {
-    try { return sessionStorage.getItem(storageEntry); } catch { return null; }
+    try { return authStorage.getItem(storageEntry); } catch { return null; }
   },
   setItem: (_key: string, value: string): void => {
-    try { sessionStorage.setItem(storageEntry, value); } catch { /* storage disabled */ }
+    try { authStorage.setItem(storageEntry, value); } catch { /* storage disabled */ }
   },
   removeItem: (_key: string): void => {
-    try { sessionStorage.removeItem(storageEntry); } catch { /* storage disabled */ }
+    try { authStorage.removeItem(storageEntry); } catch { /* storage disabled */ }
   },
 };
 
@@ -55,7 +58,7 @@ export const supabase: SupabaseClient | null = configured
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storage: tabStorage,
-        storageKey: `mingle-v3-supabase-${tabId}`,
+        storageKey: nativeAndroid ? "mingle-v3-android-supabase" : `mingle-v3-supabase-${tabId}`,
       },
     })
   : null;
