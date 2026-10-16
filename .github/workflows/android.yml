@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.1: Stories playback and profile fixes.
+# Mingle v2.0.2: Premium account menu update.
 on:
   workflow_dispatch:
   push:
@@ -101,10 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v2.0.1 >/dev/null 2>&1; then
-            gh release upload v2.0.1 android/app/build/outputs/apk/release/app-release.apk --clobber
+          if gh release view v2.0.2 >/dev/null 2>&1; then
+            gh release upload v2.0.2 android/app/build/outputs/apk/release/app-release.apk --clobber
           else
-            gh release create v2.0.1 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.1" --notes "Stories improvements: animated progress, pause on hold, and compact profile story creation button."
+            gh release create v2.0.2 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.2" --notes "Premium moved from profile to account menu; includes Stories improvements."
           fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
