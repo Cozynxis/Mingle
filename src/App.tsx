@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import {PremiumStyleEditor,usePremiumStyle} from "./PremiumStyle";
 import {ExtraSettings} from "./ExtraSettings";
 import type {CSSProperties} from "react";
@@ -89,8 +91,16 @@ function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;
   async function google(){
     if(!supabase){setError("De verbinding met Supabase ontbreekt.");return}
     setError("");
-    const {error}=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
-    if(error)setError(error.message);
+    const android=Capacitor.isNativePlatform()&&Capacitor.getPlatform()==="android";
+    const {data,error}=await supabase.auth.signInWithOAuth({provider:"google",options:{
+      redirectTo:android?"mingle://auth/callback":redirectTo,
+      skipBrowserRedirect:android,
+    }});
+    if(error){setError(error.message);return}
+    if(android&&data.url){
+      try{await Browser.open({url:data.url})}
+      catch(e){setError(e instanceof Error?e.message:"Google-aanmelding kon niet worden geopend.")}
+    }
   }
   return <div className="overlay" role="presentation"><motion.section initial={{opacity:0,y:22,scale:.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:.28}} className="auth-modal" role="dialog" aria-modal="true" aria-label="Mingle account">
     <div className="auth-brand"><Brand/><span className="auth-eyebrow">CONNECT · SHARE · DISCOVER</span></div>
