@@ -37,12 +37,57 @@ jobs:
         run: |
           python -m pip install cairosvg pillow
           python scripts/android_icons.py
+      - name: Check release signing availability
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.MINGLE_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.MINGLE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MINGLE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.MINGLE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$STORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Release signing not configured; debug APK only."
+          fi
+      - name: Configure signed release
+        if: steps.signing.outputs.ready == 'true'
+        env:
+          MINGLE_KEYSTORE_B64: ${{ secrets.MINGLE_KEYSTORE_B64 }}
+          MINGLE_KEYSTORE_PASSWORD: ${{ secrets.MINGLE_KEYSTORE_PASSWORD }}
+          MINGLE_KEY_ALIAS: ${{ secrets.MINGLE_KEY_ALIAS }}
+          MINGLE_KEY_PASSWORD: ${{ secrets.MINGLE_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$MINGLE_KEYSTORE_B64" | base64 --decode > android/app/mingle-release.jks
+          echo "MINGLE_KEYSTORE_FILE=mingle-release.jks" >> "$GITHUB_ENV"
+          python scripts/android_signing.py
+      - name: Build signed release APK
+        if: steps.signing.outputs.ready == 'true'
+        working-directory: android
+        env:
+          MINGLE_KEYSTORE_PASSWORD: ${{ secrets.MINGLE_KEYSTORE_PASSWORD }}
+          MINGLE_KEY_ALIAS: ${{ secrets.MINGLE_KEY_ALIAS }}
+          MINGLE_KEY_PASSWORD: ${{ secrets.MINGLE_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+      - name: Upload signed release APK
+        if: steps.signing.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mingle-Android-Signed-Release-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
       - name: Build installable test APK
+        if: steps.signing.outputs.ready != 'true'
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
       - name: Upload APK
+        if: steps.signing.outputs.ready != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Mingle-Android-Test-APK
