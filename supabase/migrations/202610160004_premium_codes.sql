@@ -35,7 +35,7 @@ create policy "premium_redemptions_admin_read" on public.premium_code_redemption
 -- Codes are stored as SHA-256 digests and revealed only at creation.
 create or replace function public.admin_create_premium_code(
  p_label text,p_code text,p_duration_days integer,p_max_uses integer default null,p_expires_at timestamptz default null
-) returns uuid language plpgsql security definer set search_path=public,extensions as $
+) returns uuid language plpgsql security definer set search_path=public,extensions as $body$
 declare v_id uuid;v_code text:=upper(trim(p_code));
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
@@ -49,11 +49,11 @@ begin
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
  values(auth.uid(),'premium_code_created',v_id,jsonb_build_object('label',trim(p_label),'duration_days',p_duration_days,'max_uses',p_max_uses));
  return v_id;
-end $$;
+end $body$;
 
 create or replace function public.admin_update_premium_code(
  p_id uuid,p_label text,p_max_uses integer,p_expires_at timestamptz,p_enabled boolean
-) returns void language plpgsql security definer set search_path=public,extensions as $
+) returns void language plpgsql security definer set search_path=public,extensions as $body$
 declare v_used integer;
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
@@ -65,10 +65,10 @@ begin
  update public.premium_codes set label=trim(p_label),max_uses=p_max_uses,expires_at=p_expires_at,enabled=p_enabled,updated_at=now() where id=p_id;
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
  values(auth.uid(),'premium_code_updated',p_id,jsonb_build_object('enabled',p_enabled,'max_uses',p_max_uses));
-end $$;
+end $body$;
 
 create or replace function public.admin_delete_premium_code(p_id uuid)
-returns void language plpgsql security definer set search_path=public,extensions as $
+returns void language plpgsql security definer set search_path=public,extensions as $body$
 begin
  if not public.mingle_is_admin() then raise exception 'Geen toegang';end if;
  -- Preserve redemption history: deleting a code means disabling it.
@@ -76,10 +76,10 @@ begin
  if not found then raise exception 'Code niet gevonden';end if;
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
  values(auth.uid(),'premium_code_disabled',p_id,'{}'::jsonb);
-end $$;
+end $body$;
 
 create or replace function public.redeem_premium_code(p_code text)
-returns timestamptz language plpgsql security definer set search_path=public,extensions as $
+returns timestamptz language plpgsql security definer set search_path=public,extensions as $body$
 declare v_code public.premium_codes%rowtype;v_current public.premium_subscriptions%rowtype;v_until timestamptz;v_base timestamptz;
 begin
  if auth.uid() is null then raise exception 'Log eerst in';end if;
@@ -105,7 +105,7 @@ begin
  values(auth.uid(),'active',v_until,v_code.created_by,now())
  on conflict(user_id) do update set status='active',expires_at=excluded.expires_at,granted_by=excluded.granted_by,updated_at=now();
  return v_until;
-end $$;
+end $body$;
 revoke all on function public.admin_create_premium_code(text,text,integer,integer,timestamptz) from public;
 revoke all on function public.admin_update_premium_code(uuid,text,integer,timestamptz,boolean) from public;
 revoke all on function public.admin_delete_premium_code(uuid) from public;
