@@ -47,7 +47,7 @@ begin
  insert into public.premium_codes(label,code_hash,code_hint,duration_days,max_uses,expires_at,created_by)
  values(trim(p_label),encode(digest(v_code,'sha256'),'hex'),right(v_code,4),p_duration_days,p_max_uses,p_expires_at,auth.uid()) returning id into v_id;
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
- values(auth.uid(),'premium_code_created',v_id::text,jsonb_build_object('label',trim(p_label),'duration_days',p_duration_days,'max_uses',p_max_uses));
+ values(auth.uid(),'premium_code_created',v_id,jsonb_build_object('label',trim(p_label),'duration_days',p_duration_days,'max_uses',p_max_uses));
  return v_id;
 end $$;
 
@@ -64,7 +64,7 @@ begin
  then raise exception 'Ongeldige instellingen';end if;
  update public.premium_codes set label=trim(p_label),max_uses=p_max_uses,expires_at=p_expires_at,enabled=p_enabled,updated_at=now() where id=p_id;
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
- values(auth.uid(),'premium_code_updated',p_id::text,jsonb_build_object('enabled',p_enabled,'max_uses',p_max_uses));
+ values(auth.uid(),'premium_code_updated',p_id,jsonb_build_object('enabled',p_enabled,'max_uses',p_max_uses));
 end $$;
 
 create or replace function public.admin_delete_premium_code(p_id uuid)
@@ -75,7 +75,7 @@ begin
  update public.premium_codes set enabled=false,updated_at=now() where id=p_id;
  if not found then raise exception 'Code niet gevonden';end if;
  insert into public.admin_audit_logs(actor_id,action,target_id,details)
- values(auth.uid(),'premium_code_disabled',p_id::text,'{}'::jsonb);
+ values(auth.uid(),'premium_code_disabled',p_id,'{}'::jsonb);
 end $$;
 
 create or replace function public.redeem_premium_code(p_code text)
