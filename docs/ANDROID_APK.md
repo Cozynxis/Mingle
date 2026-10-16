@@ -1,6 +1,6 @@
 # Mingle Android APK en updates
 
-De Android-basis gebruikt Capacitor. De huidige repository bevat nog geen gegenereerde Android Studio-projectmap of ondertekende APK.
+De Android-basis gebruikt Capacitor met de live website https://mingle-app.nl in de Android WebView. De huidige repository bevat nog geen gegenereerde Android Studio-projectmap of ondertekende APK.
 
 ## Eerste APK bouwen
 1. Installeer Node.js, Java 17 en Android Studio met Android SDK.
@@ -28,4 +28,4 @@ De app controleert dit bestand bij openen en wanneer hij weer zichtbaar wordt. B
 - Testen van APK-installatie en update op een Android-toestel.
 - Controleren van de Supabase-login en redirects in de native WebView.
 
-Webupdates van `mingle-app.nl` worden niet automatisch ingeladen in de Capacitor-app met gebundelde assets. Voor die aanpak is een afzonderlijk veilig live-updateproces nodig; de huidige APK vereist voor codewijzigingen een nieuwe release.
+De Android-app laadt de live website `https://mingle-app.nl`. Nieuwe websiteversies verschijnen na herladen of opnieuw openen van de app, zonder nieuwe APK. Native Android-wijzigingen vereisen nog steeds een nieuwe, met dezelfde sleutel ondertekende APK. De app heeft een internetverbinding nodig. Test de Supabase-login, externe links en de Android-updatepopup op een echt toestel voordat je de APK deelt.
