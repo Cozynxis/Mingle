@@ -1,3 +1,4 @@
+import {PremiumStyleEditor,usePremiumStyle} from "./PremiumStyle";
 import { BadgePreference } from "./Badges";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Camera, CheckCircle2, ChevronLeft, ChevronRight, ImagePlus, Lock, ShieldCheck, Sparkles, UserRound } from "lucide-react";
@@ -32,6 +33,7 @@ export function ProfileEditor({ session, initial, onSaved, onCancel, onboarding 
   session: Session; initial: MingleProfile; onSaved: (profile: MingleProfile) => void;
   onCancel?: () => void; onboarding?: boolean;
 }) {
+  const {active:premiumActive}=usePremiumStyle(session.user.id);
   const [draft,setDraft] = useState<MingleProfile>({...initial});
   const [avatar,setAvatar] = useState<File|null>(null);
   const [banner,setBanner] = useState<File|null>(null);
@@ -42,6 +44,7 @@ export function ProfileEditor({ session, initial, onSaved, onCancel, onboarding 
   const [error,setError] = useState("");
   function selectImage(e: ChangeEvent<HTMLInputElement>, kind: "avatar"|"banner") {
     const file = e.target.files?.[0]; if (!file) return;
+    if(file.type==="image/gif"&&!premiumActive){setError("Bewegende GIF-profielfoto’s en banners vereisen Mingle Premium.");return}
     if (!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type) || file.size > 5*1024*1024) {setError("Kies een JPG, PNG, WebP of GIF van maximaal 5 MB.");return}
     setError("");
     const reader = new FileReader();
@@ -89,6 +92,7 @@ export function ProfileEditor({ session, initial, onSaved, onCancel, onboarding 
       </div>}
       {(!onboarding||step===1)&&<div className="profile-form-section"><label>Bio<textarea maxLength={160} rows={5} value={draft.bio} onChange={e=>setDraft(p=>({...p,bio:e.target.value}))} placeholder="Wie ben jij? Wat wil je delen op Mingle?"/></label><span className="profile-muted">{draft.bio.length}/160 tekens</span><div className="profile-tip"><Sparkles size={20}/> Een leuke bio helpt anderen om je te leren kennen.</div></div>}
       {(!onboarding||step===2)&&<div className="profile-form-section"><div className="profile-privacy"><div><strong><Lock size={19}/> Privéaccount</strong><p>Alleen jij en later goedgekeurde volgers kunnen je privéprofiel en posts zien. Sommige accountgegevens blijven zichtbaar.</p></div><input type="checkbox" checked={draft.is_private} onChange={e=>setDraft(p=>({...p,is_private:e.target.checked}))} aria-label="Privéaccount"/></div><div className="profile-tip"><ShieldCheck size={20}/> Je kunt dit later altijd aanpassen via Profiel bewerken.</div></div>}
+      {!onboarding&&<PremiumStyleEditor userId={session.user.id} mode="profile"/>}
       {!onboarding&&<div className="profile-form-section"><h3>Badges</h3><p className="profile-muted">Kies welke toegekende badge naast je naam wordt weergegeven.</p><BadgePreference userId={session.user.id}/></div>}
       {error&&<p className="profile-error" role="alert">{error}</p>}
       <div className="profile-editor-actions">{onboarding&&step>0&&<button type="button" className="profile-back" onClick={()=>{setError("");setStep(step-1)}}><ChevronLeft size={18}/> Vorige</button>}<button type="submit" className="profile-next" disabled={busy}>{busy?"Opslaan...":onboarding&&step<2?"Volgende":"Profiel opslaan"}{!busy&&(onboarding&&step===2?<CheckCircle2 size={18}/>:<ChevronRight size={18}/>)}</button></div>
