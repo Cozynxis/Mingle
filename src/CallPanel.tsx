@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import {PhoneOff,MicOff,VideoOff} from "lucide-react";
 import {supabase} from "./lib/supabase";
-type Signal={id:string;sender_id:string;kind:string;payload:any;created_at:string};
+type Signal={id:string;call_id:string;sender_id:string;kind:string;payload:any;created_at:string};
 export function CallPanel({connectionId,me,other,startKind,onStarted}:{connectionId:string;me:string;other:string;startKind:"audio"|"video"|null;onStarted:()=>void}){
  const [incoming,setIncoming]=useState<Signal|null>(null),[mode,setMode]=useState<"audio"|"video"|null>(null),[status,setStatus]=useState(""),[muted,setMuted]=useState(false),[cameraOff,setCameraOff]=useState(false);
  const peer=useRef<RTCPeerConnection|null>(null),local=useRef<MediaStream|null>(null),last=useRef(new Set<string>()),callId=useRef(""),remoteVideo=useRef<HTMLVideoElement>(null),localVideo=useRef<HTMLVideoElement>(null);
