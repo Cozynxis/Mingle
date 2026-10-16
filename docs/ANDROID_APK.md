@@ -29,3 +29,24 @@ De app controleert dit bestand bij openen en wanneer hij weer zichtbaar wordt. B
 - Controleren van de Supabase-login en redirects in de native WebView.
 
 De Android-app laadt de live website `https://mingle-app.nl`. Nieuwe websiteversies verschijnen na herladen of opnieuw openen van de app, zonder nieuwe APK. Native Android-wijzigingen vereisen nog steeds een nieuwe, met dezelfde sleutel ondertekende APK. De app heeft een internetverbinding nodig. Test de Supabase-login, externe links en de Android-updatepopup op een echt toestel voordat je de APK deelt.
+
+## Automatisch bouwen via GitHub Actions (geen Android Studio nodig)
+Open **Actions → Build Mingle Android APK → Run workflow**. Bij iedere relevante wijziging op main wordt de workflow ook gestart. Download na een geslaagde run het artifact. Zonder release-sleutel heet dit `Mingle-Android-Test-APK` en bevat het een debug-APK. Een debug-APK is alleen voor eigen tests; deze is niet bedoeld als definitieve distributie.
+
+### Definitieve, ondertekende release (eenmalig instellen)
+Een vaste **private keystore** is vereist om nieuwe APK-versies over de oude heen te installeren. Maak de keystore **eenmalig** in een vertrouwde omgeving, bewaar een veilige offline back-up, en zet nooit het keystorebestand of wachtwoorden in de repository. Je kunt de sleutel met Java `keytool` aanmaken; hiervoor is Android Studio niet nodig. GitHub Actions kan vervolgens de ondertekende APK's bouwen.
+
+Voeg in GitHub **Settings → Secrets and variables → Actions → New repository secret** de volgende vier secrets toe:
+
+- `MINGLE_KEYSTORE_B64`: Base64 van het binaire JKS-keystorebestand (één regel)
+- `MINGLE_KEYSTORE_PASSWORD`: wachtwoord van de keystore
+- `MINGLE_KEY_ALIAS`: alias van de sleutel
+- `MINGLE_KEY_PASSWORD`: wachtwoord van de sleutel
+
+De workflow schakelt dan automatisch over naar `assembleRelease` en uploadt het artifact `Mingle-Android-Signed-Release-APK`. **Een nieuwe sleutel per build werkt niet voor upgrades**. Deel deze secrets nooit in een chat, commit of issue.
+
+### Waarschuwingen en veiligheid
+Een geldig ondertekende APK is niet automatisch door Google Play Protect goedgekeurd. Android kan bij sideloading toestemming voor onbekende bronnen vragen; dat kan een app niet veilig uitschakelen. Controleer de APK en installeer uitsluitend releases die je zelf hebt gebouwd. Voor een gebruiksvriendelijke installatie zonder sideload-toestemming is Google Play de aanbevolen route.
+
+### Status van het updatesysteem
+De bestaande updatepopup is voorbereid, maar automatische release-publicatie, een juiste `versionCode` per release en de verwijzing in `public/android-update.json` moeten nog worden afgerond en op een echte telefoon getest. De APK kan niet zonder bevestiging van de gebruiker worden geïnstalleerd.
