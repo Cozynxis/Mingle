@@ -3,6 +3,7 @@ import type {Session} from "@supabase/supabase-js";
 import {Gem,Check,Sparkles,Palette,Image,ShieldCheck,ArrowLeft,Clock} from "lucide-react";
 import {supabase} from "./lib/supabase";
 import "./premium.css";
+import "./premium-codes.css";
 type Access={status:string;expires_at:string|null};
 const perks=[
  {icon:Image,title:"Bewegende profielfoto en banner",description:"Gebruik geanimeerde GIF- en WebP-bestanden op je profiel."},
@@ -29,6 +30,6 @@ export function PremiumPage({session,onBack}:{session:Session;onBack:()=>void}){
   <div className="premium-section-title"><span>ALLE VOORDELEN</span><h2>Meer mogelijkheden voor jouw profiel</h2><p>Dit zijn de Premium-functies die we voor Mingle ontwikkelen. Ze worden stap voor stap beschikbaar.</p></div>
   <div className="premium-benefits">{perks.map(({icon:Icon,title,description})=><article className="premium-benefit" key={title}><span className="premium-benefit-icon"><Icon size={23}/></span><h3>{title}</h3><p>{description}</p><span className="premium-coming"><Clock size={13}/> In ontwikkeling</span></article>)}</div>
   <div className="premium-faq"><h2>Veelgestelde vragen</h2><details><summary>Hoe krijg ik Premium?</summary><p>Premium is momenteel beschikbaar via codes die beheerders uitgeven. Er worden geen betalingen verwerkt.</p></details><details><summary>Kan ik Premium al kopen?</summary><p>Nee, je kunt Premium activeren met een geldige code van een Mingle-beheerder.</p></details><details><summary>Blijven gewone Mingle-functies gratis?</summary><p>Ja. Berichten plaatsen, reageren, volgen en de normale profielinstellingen blijven gratis.</p></details></div>
-  {error&&<p className="premium-error">Premium-status kon niet worden opgehaald: {error}</p>}
+  {error&&<p className="premium-error">{error}</p>}
  </section>
 }
