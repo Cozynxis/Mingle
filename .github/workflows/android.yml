@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.3: Refresh Android APK without Mingle AI chat entry.
+# Mingle v2.0.3: Include new group chats and polls in Android build.
 on:
   workflow_dispatch:
   push:
