@@ -18,25 +18,46 @@ export function VoiceRecorder({onRecorded,disabled}:{onRecorded:(file:File)=>voi
  }
  return <><button type="button" title={recording?"Opname stoppen":"Spraakbericht opnemen"} aria-label={recording?"Stop opname":"Start spraakbericht"} disabled={disabled} onClick={()=>void toggle()} style={{color:recording?"#ff647d":undefined,background:recording?"#ff647d20":undefined,animation:recording?"dm-record-pulse 1.4s infinite":undefined}}>{recording?<Square size={19}/>:<Mic size={19}/>}</button>{recording&&<small style={{color:"#ff647d",whiteSpace:"nowrap"}}>Opnemen…</small>}{error&&<small role="alert">{error}</small>}</>;
 }
+// One shared audio element preserves Android's user-initiated playback session
+// across voice notes, while each message owns its own visible controls.
+const sharedVoice=new Audio();
+let selectedVoice:string|null=null;
+const voiceListeners=new Set<()=>void>();
+function notifyVoice(){voiceListeners.forEach(fn=>fn())}
 export function VoicePlayer({src,active=false,onStart,onFinished}:{src:string;active?:boolean;onStart?:()=>void;onFinished?:()=>void}){
- const audio=useRef<HTMLAudioElement>(null);
  const [playing,setPlaying]=useState(false),[position,setPosition]=useState(0),[duration,setDuration]=useState(0),[speed,setSpeed]=useState(1);
- useEffect(()=>{setPlaying(false);setPosition(0)},[src]);
+ const finishRef=useRef(onFinished);finishRef.current=onFinished;
  useEffect(()=>{
-  const a=audio.current;if(!a)return;
-  if(active){a.playbackRate=speed;void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}
-  else{a.pause();setPlaying(false)}
+  const update=()=>{const selected=selectedVoice===src;setPlaying(selected&&!sharedVoice.paused);setPosition(selected?sharedVoice.currentTime:0);setDuration(selected&&Number.isFinite(sharedVoice.duration)?sharedVoice.duration:0)};
+  voiceListeners.add(update);
+  const time=()=>notifyVoice();
+  const ended=()=>{if(selectedVoice===src){setPlaying(false);finishRef.current?.()}};
+  sharedVoice.addEventListener("timeupdate",time);
+  sharedVoice.addEventListener("loadedmetadata",time);
+  sharedVoice.addEventListener("play",time);
+  sharedVoice.addEventListener("pause",time);
+  sharedVoice.addEventListener("ended",ended);
+  update();
+  return()=>{voiceListeners.delete(update);sharedVoice.removeEventListener("timeupdate",time);sharedVoice.removeEventListener("loadedmetadata",time);sharedVoice.removeEventListener("play",time);sharedVoice.removeEventListener("pause",time);sharedVoice.removeEventListener("ended",ended)}
+ },[src]);
+ useEffect(()=>{
+  if(!active||selectedVoice===src)return;
+  selectedVoice=src;
+  sharedVoice.src=src;
+  sharedVoice.playbackRate=speed;
+  // Reuse the SAME HTMLAudioElement for the next voice message on Android.
+  void sharedVoice.play().then(notifyVoice).catch(notifyVoice);
+  notifyVoice();
  },[active,src]);
  const fmt=(n:number)=>Number.isFinite(n)?Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0"):"0:00";
  return <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,maxWidth:"100%",width:"100%"}}>
-  <audio ref={audio} src={src} preload="metadata" onTimeUpdate={e=>setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e=>setDuration(e.currentTarget.duration)} onEnded={()=>{setPlaying(false);onFinished?.()}}/>
   <button type="button" aria-label={playing?"Pauze":"Afspelen"} onClick={()=>{
-   const a=audio.current;if(!a)return;
-   if(a.paused){onStart?.();if(!active)void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}
-   else{a.pause();setPlaying(false)}
+   if(selectedVoice!==src){selectedVoice=src;sharedVoice.src=src;sharedVoice.playbackRate=speed;onStart?.();void sharedVoice.play().then(notifyVoice).catch(notifyVoice)}
+   else if(sharedVoice.paused){onStart?.();void sharedVoice.play().then(notifyVoice).catch(notifyVoice)}
+   else{sharedVoice.pause();notifyVoice()}
   }}>{playing?<Pause size={19}/>:<Play size={19}/>}</button>
-  <input aria-label="Afspeelpositie" type="range" min={0} max={Number.isFinite(duration)?duration:0} step=".1" value={position} onChange={e=>{if(audio.current)audio.current.currentTime=Number(e.target.value);setPosition(Number(e.target.value))}} style={{width:"100%",minWidth:30,flex:1}}/>
+  <input aria-label="Afspeelpositie" type="range" min={0} max={Number.isFinite(duration)?duration:0} step=".1" value={position} onChange={e=>{if(selectedVoice===src)sharedVoice.currentTime=Number(e.target.value);setPosition(Number(e.target.value))}} style={{width:"100%",minWidth:30,flex:1}}/>
   <small>{fmt(position)}/{fmt(duration)}</small>
-  <button type="button" title="Afspeelsnelheid" onClick={()=>{const next=speed===1?1.5:speed===1.5?2:1;setSpeed(next);if(audio.current)audio.current.playbackRate=next}}>{speed}×</button>
+  <button type="button" title="Afspeelsnelheid" onClick={()=>{const next=speed===1?1.5:speed===1.5?2:1;setSpeed(next);if(selectedVoice===src)sharedVoice.playbackRate=next}}>{speed}×</button>
  </div>
 }
