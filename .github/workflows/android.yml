@@ -31,6 +31,8 @@ jobs:
         run: npx cap add android
       - name: Sync Capacitor
         run: npx cap sync android
+      - name: Set Android APK version
+        run: python scripts/android_version.py
       - name: Configure Android Google login callback
         run: python scripts/android_oauth.py
       - name: Generate official Mingle app icons
