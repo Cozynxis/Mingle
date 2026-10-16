@@ -8,11 +8,12 @@ export function usePremiumStyle(userId:string|null|undefined){
  const [active,setActive]=useState(false);
  useEffect(()=>{let live=true;setStyle(defaultStyle);setActive(false);if(!userId||!supabase)return;const client=supabase;const reload=()=>{void Promise.all([client.rpc("mingle_has_premium",{uid:userId}),client.from("premium_styles").select("frame,profile_accent,app_theme,app_accent,name_effect,profile_accent_secondary,gradient_angle,gradient_strength,gradient_motion,presets").eq("user_id",userId).maybeSingle()]).then(([a,s])=>{if(!live)return;setActive(a.data===true);if(a.data===true&&s.data)setStyle({...defaultStyle,...s.data} as PremiumStyle)})};reload();window.addEventListener("mingle-premium-style-updated",reload);return()=>{live=false;window.removeEventListener("mingle-premium-style-updated",reload)}},[userId]);return {style,active};
 }
-const frames=["none","gold","neon","galaxy"],themes=["default","midnight","aurora","ocean","royal"],names=["none","gradient","glow","shimmer","neon","rainbow","holographic","outline","fire"];
+const frames=["none","gold","neon","galaxy","diamond","ruby","emerald","sapphire","amethyst","sunset","ice","flame","electric","cosmic","royal","rose","mint","obsidian","pearl","prism","cyber","solar","lunar","aurora","plasma","frost","crimson","ocean","starlight","toxic","candy","bronze","silver","rainbow"],themes=["default","midnight","aurora","ocean","royal"],names=["none","gradient","glow","shimmer","neon","rainbow","holographic","outline","fire"];
 export function PremiumStyleEditor({userId,mode,onSaved}:{userId:string;mode:"profile"|"app";onSaved?:()=>void}){
  const {style:initial,active}=usePremiumStyle(userId);
  const [style,setStyle]=useState<PremiumStyle>(defaultStyle);
  const [busy,setBusy]=useState(false),[message,setMessage]=useState("");
+ const [picker,setPicker]=useState<"frame"|"name"|"theme"|null>(null);
  useEffect(()=>setStyle(initial),[initial]);
  const update=(key:keyof PremiumStyle,value:string|number|boolean)=>setStyle(p=>({...p,[key]:value}));
  async function save(){if(!supabase||!active)return;setBusy(true);setMessage("");const {error}=await supabase.rpc("premium_save_style",{a_frame:style.frame,a_profile_accent:style.profile_accent,a_app_theme:style.app_theme,a_app_accent:style.app_accent,a_name_effect:style.name_effect,a_presets:style.presets,a_profile_accent_secondary:style.profile_accent_secondary,a_gradient_angle:style.gradient_angle,a_gradient_strength:style.gradient_strength,a_gradient_motion:style.gradient_motion});setBusy(false);setMessage(error?error.message:"Premium-stijl opgeslagen!");if(!error){window.dispatchEvent(new Event("mingle-premium-style-updated"));onSaved?.()}}
