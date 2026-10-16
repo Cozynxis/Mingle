@@ -1,6 +1,5 @@
 import {useEffect,useRef,useState} from "react";
 import {Mic,Square,Play,Pause} from "lucide-react";
-import {playSound} from "./MingleSounds";
 export function VoiceRecorder({onRecorded,disabled}:{onRecorded:(file:File)=>void;disabled:boolean}){
  const recorder=useRef<MediaRecorder|null>(null),stream=useRef<MediaStream|null>(null);
  const [recording,setRecording]=useState(false),[error,setError]=useState("");
@@ -19,13 +18,23 @@ export function VoiceRecorder({onRecorded,disabled}:{onRecorded:(file:File)=>voi
  }
  return <><button type="button" title={recording?"Opname stoppen":"Spraakbericht opnemen"} aria-label={recording?"Stop opname":"Start spraakbericht"} disabled={disabled} onClick={()=>void toggle()} style={{color:recording?"#ff647d":undefined,background:recording?"#ff647d20":undefined,animation:recording?"dm-record-pulse 1.4s infinite":undefined}}>{recording?<Square size={19}/>:<Mic size={19}/>}</button>{recording&&<small style={{color:"#ff647d",whiteSpace:"nowrap"}}>Opnemen…</small>}{error&&<small role="alert">{error}</small>}</>;
 }
-export function VoicePlayer({src,playlist,playlistIndex=0}:{src:string;playlist?:string[];playlistIndex?:number}){
- const audio=useRef<HTMLAudioElement>(null);const [trackIndex,setTrackIndex]=useState(playlistIndex);const [playing,setPlaying]=useState(false),[position,setPosition]=useState(0),[duration,setDuration]=useState(0),[speed,setSpeed]=useState(1);
- useEffect(()=>{setPlaying(false);setPosition(0);setTrackIndex(playlistIndex)},[src,playlistIndex]);
+export function VoicePlayer({src,active=false,onStart,onFinished}:{src:string;active?:boolean;onStart?:()=>void;onFinished?:()=>void}){
+ const audio=useRef<HTMLAudioElement>(null);
+ const [playing,setPlaying]=useState(false),[position,setPosition]=useState(0),[duration,setDuration]=useState(0),[speed,setSpeed]=useState(1);
+ useEffect(()=>{setPlaying(false);setPosition(0)},[src]);
+ useEffect(()=>{
+  const a=audio.current;if(!a)return;
+  if(active){a.playbackRate=speed;void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}
+  else{a.pause();setPlaying(false)}
+ },[active,src]);
  const fmt=(n:number)=>Number.isFinite(n)?Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0"):"0:00";
  return <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,maxWidth:"100%",width:"100%"}}>
-  <audio ref={audio} src={playlist?.[trackIndex]||src} preload="metadata" onTimeUpdate={e=>setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e=>setDuration(e.currentTarget.duration)} onEnded={()=>{const next=trackIndex+1;if(playlist&&next<playlist.length){void playSound("voiceNext");setTrackIndex(next);setPosition(0);setTimeout(()=>{void audio.current?.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))},250)}else{setPlaying(false);void playSound("voiceStop")}}}/>
-  <button type="button" aria-label={playing?"Pauze":"Afspelen"} onClick={()=>{const a=audio.current;if(!a)return;if(a.paused){void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}else{a.pause();setPlaying(false)}}}>{playing?<Pause size={19}/>:<Play size={19}/>}</button>
+  <audio ref={audio} src={src} preload="metadata" onTimeUpdate={e=>setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e=>setDuration(e.currentTarget.duration)} onEnded={()=>{setPlaying(false);onFinished?.()}}/>
+  <button type="button" aria-label={playing?"Pauze":"Afspelen"} onClick={()=>{
+   const a=audio.current;if(!a)return;
+   if(a.paused){onStart?.();if(!active)void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}
+   else{a.pause();setPlaying(false)}
+  }}>{playing?<Pause size={19}/>:<Play size={19}/>}</button>
   <input aria-label="Afspeelpositie" type="range" min={0} max={Number.isFinite(duration)?duration:0} step=".1" value={position} onChange={e=>{if(audio.current)audio.current.currentTime=Number(e.target.value);setPosition(Number(e.target.value))}} style={{width:"100%",minWidth:30,flex:1}}/>
   <small>{fmt(position)}/{fmt(duration)}</small>
   <button type="button" title="Afspeelsnelheid" onClick={()=>{const next=speed===1?1.5:speed===1.5?2:1;setSpeed(next);if(audio.current)audio.current.playbackRate=next}}>{speed}×</button>
