@@ -12,20 +12,20 @@ export function VoiceRecorder({onRecorded,disabled}:{onRecorded:(file:File)=>voi
    const mime=["audio/webm;codecs=opus","audio/mp4","audio/webm"].find(t=>MediaRecorder.isTypeSupported(t));
    const chunks:Blob[]=[];const rec=new MediaRecorder(media,mime?{mimeType:mime}:undefined);recorder.current=rec;
    rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-   rec.onstop=()=>{media.getTracks().forEach(t=>t.stop());const type=rec.mimeType||"audio/webm";const ext=type.includes("mp4")?"m4a":type.includes("ogg")?"ogg":"webm";const blob=new Blob(chunks,{type});if(blob.size)onRecorded(new File([blob],"spraakbericht-"+Date.now()+"."+ext,{type}));setRecording(false)};
+   rec.onstop=()=>{media.getTracks().forEach(t=>t.stop());stream.current=null;recorder.current=null;const type=rec.mimeType||"audio/webm";const ext=type.includes("mp4")?"m4a":type.includes("ogg")?"ogg":"webm";const blob=new Blob(chunks,{type});if(blob.size)onRecorded(new File([blob],"spraakbericht-"+Date.now()+"."+ext,{type}));setRecording(false)};
    rec.start();setError("");setRecording(true);
   }catch(e){setError(e instanceof Error?e.message:"Microfoon niet beschikbaar");setRecording(false)}
  }
- return <><button type="button" title={recording?"Opname stoppen":"Spraakbericht opnemen"} aria-label={recording?"Stop opname":"Start spraakbericht"} disabled={disabled} onClick={()=>void toggle()} style={{color:recording?"#ff647d":undefined}}>{recording?<Square size={19}/>:<Mic size={19}/>}</button>{error&&<small role="alert">{error}</small>}</>;
+ return <><button type="button" title={recording?"Opname stoppen":"Spraakbericht opnemen"} aria-label={recording?"Stop opname":"Start spraakbericht"} disabled={disabled} onClick={()=>void toggle()} style={{color:recording?"#ff647d":undefined,background:recording?"#ff647d20":undefined,animation:recording?"dm-record-pulse 1.4s infinite":undefined}}>{recording?<Square size={19}/>:<Mic size={19}/>}</button>{recording&&<small style={{color:"#ff647d",whiteSpace:"nowrap"}}>Opnemen…</small>}{error&&<small role="alert">{error}</small>}</>;
 }
 export function VoicePlayer({src}:{src:string}){
  const audio=useRef<HTMLAudioElement>(null);const [playing,setPlaying]=useState(false),[position,setPosition]=useState(0),[duration,setDuration]=useState(0),[speed,setSpeed]=useState(1);
  useEffect(()=>{setPlaying(false);setPosition(0)},[src]);
  const fmt=(n:number)=>Number.isFinite(n)?Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0"):"0:00";
- return <div style={{display:"flex",alignItems:"center",gap:8,minWidth:190}}>
+ return <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,maxWidth:"100%",width:"100%"}}>
   <audio ref={audio} src={src} preload="metadata" onTimeUpdate={e=>setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e=>setDuration(e.currentTarget.duration)} onEnded={()=>setPlaying(false)}/>
   <button type="button" aria-label={playing?"Pauze":"Afspelen"} onClick={()=>{const a=audio.current;if(!a)return;if(a.paused){void a.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}else{a.pause();setPlaying(false)}}}>{playing?<Pause size={19}/>:<Play size={19}/>}</button>
-  <input aria-label="Afspeelpositie" type="range" min={0} max={Number.isFinite(duration)?duration:0} step=".1" value={position} onChange={e=>{if(audio.current)audio.current.currentTime=Number(e.target.value);setPosition(Number(e.target.value))}} style={{width:95}}/>
+  <input aria-label="Afspeelpositie" type="range" min={0} max={Number.isFinite(duration)?duration:0} step=".1" value={position} onChange={e=>{if(audio.current)audio.current.currentTime=Number(e.target.value);setPosition(Number(e.target.value))}} style={{width:"100%",minWidth:30,flex:1}}/>
   <small>{fmt(position)}/{fmt(duration)}</small>
   <button type="button" title="Afspeelsnelheid" onClick={()=>{const next=speed===1?1.5:speed===1.5?2:1;setSpeed(next);if(audio.current)audio.current.playbackRate=next}}>{speed}×</button>
  </div>
