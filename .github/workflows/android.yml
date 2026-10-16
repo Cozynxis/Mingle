@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.3: Native Support Center in More menu.
+# Mingle v2.0.3: Refresh Android APK without Mingle AI chat entry.
 on:
   workflow_dispatch:
   push:
