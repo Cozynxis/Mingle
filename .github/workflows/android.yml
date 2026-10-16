@@ -8,7 +8,7 @@ on:
       - 'scripts/android_*.py'
       - '.github/workflows/android.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -82,6 +82,16 @@ jobs:
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish official signed APK release
+        if: steps.signing.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.1.0 >/dev/null 2>&1; then
+            echo "Release v1.1.0 already exists; keeping the published APK unchanged."
+          else
+            gh release create v1.1.0 android/app/build/outputs/apk/release/app-release.apk#Mingle-1.1.0.apk --title "Mingle Android 1.1.0" --notes "Signed Android APK with mobile navigation, Google login callback and Android update center."
+          fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
         working-directory: android
