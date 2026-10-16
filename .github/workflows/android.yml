@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.2: Premium account menu update.
+# Mingle v2.0.3: Native Support Center in More menu.
 on:
   workflow_dispatch:
   push:
@@ -101,10 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v2.0.2 >/dev/null 2>&1; then
-            gh release upload v2.0.2 android/app/build/outputs/apk/release/app-release.apk --clobber
+          if gh release view v2.0.3 >/dev/null 2>&1; then
+            gh release upload v2.0.3 android/app/build/outputs/apk/release/app-release.apk --clobber
           else
-            gh release create v2.0.2 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.2" --notes "Premium moved from profile to account menu; includes Stories improvements."
+            gh release create v2.0.3 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.3" --notes "Support Center in More menu: create and reply to tickets, active/closed ticket folders, improved mobile layout and navigation."
           fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
