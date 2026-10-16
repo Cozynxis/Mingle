@@ -54,3 +54,20 @@
 .support-admin-actions button:disabled{opacity:.5}
 .support-admin-actions span{display:flex;align-items:center;gap:5px;color:#b5a7ae;font-size:11px}
 @media(max-width:550px){.support-tabs{flex-wrap:wrap}.support-tabs button{flex:1;justify-content:center;font-size:12px}.support-admin-actions button{flex:1;justify-content:center}}
+
+/* Embedded Support Center in the native Mingle mobile application */
+.support-embedded{padding:16px 12px 24px;min-height:0;width:100%;overflow:hidden}
+.support-embedded .support-header{flex-wrap:wrap;gap:12px;padding:5px 0 20px}
+.support-embedded .support-header>div{flex-basis:65%}
+.support-embedded .support-header h1{font-size:clamp(22px,5vw,30px)}
+.support-embedded .support-header p{font-size:13px}
+.support-back{display:inline-flex;align-items:center;gap:7px;background:#29263c;color:#e6dcff;border:1px solid #5b507a;border-radius:11px;padding:10px 12px;cursor:pointer}
+.support-embedded .support-grid{grid-template-columns:minmax(0,1fr)}
+.support-embedded .support-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+.support-embedded .support-card{padding:15px;border-radius:16px}
+.support-embedded .support-ticket-list{max-height:310px}
+.support-embedded .support-form{grid-template-columns:minmax(0,1fr)}
+.support-embedded .support-list-head{align-items:flex-start}
+.support-embedded .support-detail-head{flex-wrap:wrap}
+.support-embedded button,.support-embedded a,.support-embedded select{touch-action:manipulation}
+@media(max-width:560px){.support-embedded{padding:10px 10px 20px}.support-embedded .support-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.support-embedded .support-header{align-items:center}.support-embedded .support-header>div{flex-basis:100%;order:2}.support-embedded .support-header>button:last-child{margin-left:auto}.support-embedded .support-detail{min-width:0}.support-embedded .support-reply textarea{min-height:90px}}
