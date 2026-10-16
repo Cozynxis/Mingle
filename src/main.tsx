@@ -1,3 +1,4 @@
+import {AndroidAuthCallback} from "./AndroidAuthCallback";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
@@ -7,4 +8,4 @@ import "./styles.css";
 const redirected = new URLSearchParams(window.location.search).get("mingle_route");
 if(redirected && redirected.startsWith("/") && !redirected.startsWith("//")) window.history.replaceState(null,"",redirected);
 const root = document.getElementById("root");
-if (root) createRoot(root).render(<React.StrictMode>{window.location.pathname.replace(/\/$/,"")==="/admin"?<Admin/>:<App/>}<AndroidUpdate/></React.StrictMode>);
+if (root) createRoot(root).render(<React.StrictMode>{window.location.pathname.replace(/\/$/,"")==="/admin"?<Admin/>:<App/>}<AndroidUpdate/><AndroidAuthCallback/></React.StrictMode>);
