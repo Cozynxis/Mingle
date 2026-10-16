@@ -29,6 +29,16 @@ jobs:
         run: npm run build
       - name: Generate Android project
         run: npx cap add android
+      - name: Configure Firebase Android services
+        env:
+          MINGLE_FIREBASE_JSON_B64: ${{ secrets.MINGLE_FIREBASE_JSON_B64 }}
+        run: |
+          if [ -n "$MINGLE_FIREBASE_JSON_B64" ]; then
+            printf "%s" "$MINGLE_FIREBASE_JSON_B64" | base64 --decode > android/app/google-services.json
+            python scripts/android_firebase.py
+          else
+            echo "::notice::Firebase config secret missing; push notifications are not enabled."
+          fi
       - name: Sync Capacitor
         run: npx cap sync android
       - name: Set Android APK version
