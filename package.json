@@ -21,7 +21,8 @@
     "react-router-dom": "^7.8.0",
     "@capacitor/core": "^7.4.0",
     "@capacitor/app": "^7.1.0",
-    "@capacitor/browser": "^7.0.0"
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/push-notifications": "^7.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
