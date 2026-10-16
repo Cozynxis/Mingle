@@ -4,11 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'public/**'
       - 'capacitor.config.ts'
-      - 'package.json'
-      - 'package-lock.json'
+      - 'scripts/android_*.py'
       - '.github/workflows/android.yml'
 permissions:
   contents: read
