@@ -9,7 +9,14 @@ Deno.serve(async(req)=>{
  const client=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!,{global:{headers:{Authorization:"Bearer "+token}}});
  const {data:{user},error}=await client.auth.getUser(token);
  if(error||!user)return new Response(JSON.stringify({error:"Unauthorized"}),{status:401,headers});
- const url=Deno.env.get("MINGLE_TURN_URL"),secret=Deno.env.get("MINGLE_TURN_SHARED_SECRET");
+ const url=Deno.env.get("MINGLE_TURN_URL");
+ const staticUsername=Deno.env.get("MINGLE_TURN_USERNAME");
+ const staticPassword=Deno.env.get("MINGLE_TURN_PASSWORD");
+ if(url&&staticUsername&&staticPassword){
+  // Static Metered credentials: authenticated clients can inspect these; prefer short-lived credentials for production.
+  return new Response(JSON.stringify({iceServers:[{urls:url.split(",").map(x=>x.trim()),username:staticUsername,credential:staticPassword}],configured:true,credentialMode:"static"}),{headers});
+ }
+ const secret=Deno.env.get("MINGLE_TURN_SHARED_SECRET");
  if(!url||!secret)return new Response(JSON.stringify({iceServers:[],configured:false}),{headers});
  const username=String(Math.floor(Date.now()/1000)+3600)+":"+user.id;
  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-1"},false,["sign"]);
