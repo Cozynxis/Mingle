@@ -2,11 +2,35 @@ import {useEffect,useRef,useState} from "react";
 import {Phone,Video,X} from "lucide-react";
 import {supabase} from "./lib/supabase";
 type Offer={id:string;connection_id:string;call_id:string;created_at:string;payload:{video?:boolean}};
+const ignored=new Set<string>();
 export function IncomingCallWatcher({userId,onOpen}:{userId:string;onOpen:(id:string)=>void}){
- const [offer,setOffer]=useState<Offer|null>(null),seen=useRef(new Set<string>());
- useEffect(()=>{if(!supabase)return;let live=true;const check=async()=>{const {data}=await supabase!.from("dm_call_signals").select("id,connection_id,call_id,created_at,payload,kind").eq("recipient_id",userId).eq("kind","offer").order("created_at",{ascending:false}).limit(5);if(!live||!data)return;const fresh=(data as (Offer&{kind:string})[]).find(x=>Date.now()-new Date(x.created_at).getTime()<45000&&!seen.current.has(x.call_id));if(fresh){seen.current.add(fresh.call_id);setOffer(fresh)}};void check();const timer=setInterval(()=>{if(!document.hidden)void check()},3000);return()=>{live=false;clearInterval(timer)}},[userId]);
+ const [offer,setOffer]=useState<Offer|null>(null);
+ const openRef=useRef(onOpen);openRef.current=onOpen;
+ useEffect(()=>{
+  if(!supabase)return;
+  let live=true;let checking=false;
+  const check=async()=>{
+   if(checking||!live||document.hidden)return;
+   checking=true;
+   try{
+    const {data}=await supabase!.from("dm_call_signals").select("id,connection_id,call_id,created_at,payload,kind").eq("recipient_id",userId).order("created_at",{ascending:false}).limit(40);
+    if(!live||!data)return;
+    const signals=data as (Offer&{kind:string})[];
+    const ended=new Set(signals.filter(s=>s.kind==="hangup").map(s=>s.call_id));
+    const fresh=signals.find(s=>s.kind==="offer"&&Date.now()-new Date(s.created_at).getTime()<35000&&!ended.has(s.call_id)&&!ignored.has(s.call_id));
+    setOffer(current=>current&&fresh?.call_id===current.call_id?current:fresh||null);
+   }finally{checking=false}
+  };
+  void check();
+  const timer=window.setInterval(()=>{void check()},4000);
+  const onFocus=()=>{void check()};
+  window.addEventListener("mingle-refresh-incoming-calls",onFocus);
+  document.addEventListener("visibilitychange",onFocus);
+  return()=>{live=false;clearInterval(timer);window.removeEventListener("mingle-refresh-incoming-calls",onFocus);document.removeEventListener("visibilitychange",onFocus)};
+ },[userId]);
  if(!offer)return null;
- return <div role="alertdialog" aria-label="Inkomende Mingle oproep" style={{position:"fixed",right:18,top:18,zIndex:99999,background:"#211c32",color:"white",padding:20,borderRadius:16,boxShadow:"0 10px 45px #0007",maxWidth:340}}>
+ const dismiss=()=>{ignored.add(offer.call_id);setOffer(null)};
+ return <div role="alertdialog" aria-label="Inkomende Mingle oproep" className="mingle-incoming-toast">
  <strong>{offer.payload?.video?"Inkomend videogesprek":"Inkomende spraakoproep"}</strong><p>Er belt iemand via Mingle.</p>
- <div style={{display:"flex",gap:10}}><button onClick={()=>setOffer(null)}><X size={18}/> Weigeren</button><button onClick={()=>{onOpen(offer.connection_id);setOffer(null)}}>{offer.payload?.video?<Video size={18}/>:<Phone size={18}/>} Open gesprek</button></div></div>;
+ <div className="mingle-incoming-actions"><button onClick={dismiss}><X size={17}/> Sluiten</button><button onClick={()=>{ignored.add(offer.call_id);openRef.current(offer.connection_id);setOffer(null)}}>{offer.payload?.video?<Video size={17}/>:<Phone size={17}/>} Open gesprek</button></div></div>;
 }
