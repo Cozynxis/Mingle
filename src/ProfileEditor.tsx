@@ -44,7 +44,7 @@ export function ProfileEditor({ session, initial, onSaved, onCancel, onboarding 
   const [error,setError] = useState("");
   function selectImage(e: ChangeEvent<HTMLInputElement>, kind: "avatar"|"banner") {
     const file = e.target.files?.[0]; if (!file) return;
-    if(file.type==="image/gif"&&!premiumActive){setError("Bewegende GIF-profielfoto’s en banners vereisen Mingle Premium.");return}
+    if((file.type==="image/gif"||file.type==="image/webp")&&!premiumActive){setError("GIF en WebP profielfoto’s en banners vereisen Mingle Premium.");e.target.value="";return}
     if (!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type) || file.size > 5*1024*1024) {setError("Kies een JPG, PNG, WebP of GIF van maximaal 5 MB.");return}
     setError("");
     const reader = new FileReader();
@@ -61,6 +61,7 @@ export function ProfileEditor({ session, initial, onSaved, onCancel, onboarding 
     setBusy(true);
     try {
       const next={...draft, display_name:draft.display_name.trim(), bio:draft.bio.trim(), onboarding_completed:true};
+      if((avatar&&["image/gif","image/webp"].includes(avatar.type))||(banner&&["image/gif","image/webp"].includes(banner.type))){const {data:hasPremium,error:premiumError}=await supabase.rpc("mingle_has_premium",{uid:session.user.id});if(premiumError||hasPremium!==true)throw new Error("GIF en WebP uploaden vereist een actief Premium-abonnement.");}
       if (avatar) next.avatar_url=await uploadProfileImage(session.user.id,"avatar",avatar);
       if (banner) next.banner_url=await uploadProfileImage(session.user.id,"banner",banner);
       const {data,error:saveError}=await supabase.from("profiles").update({
