@@ -1,8 +1,9 @@
-import {useEffect} from "react";
+import {useEffect,useRef} from "react";
 import {Capacitor} from "@capacitor/core";
 import {PushNotifications} from "@capacitor/push-notifications";
 import {supabase} from "./lib/supabase";
 export function AndroidCallPush({userId,onOpen}:{userId:string;onOpen:(id:string)=>void}){
+ const openRef=useRef(onOpen);openRef.current=onOpen;
  useEffect(()=>{
   if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=="android"||!supabase)return;
   let alive=true;
@@ -13,7 +14,7 @@ export function AndroidCallPush({userId,onOpen}:{userId:string;onOpen:(id:string
    if(error)console.warn(error.message);
   };
   const open=(data:Record<string,unknown>)=>{
-   if(data?.type==="incoming_call"&&typeof data.connection_id==="string")onOpen(data.connection_id);
+   if(data?.type==="incoming_call"&&typeof data.connection_id==="string")openRef.current(data.connection_id);
   };
   void (async()=>{
    try{
@@ -28,6 +29,6 @@ export function AndroidCallPush({userId,onOpen}:{userId:string;onOpen:(id:string
    }catch(e){console.warn("Push unavailable",e)}
   })();
   return()=>{alive=false;listeners.forEach(x=>{void x.remove()})};
- },[userId,onOpen]);
+ },[userId]);
  return null;
 }
