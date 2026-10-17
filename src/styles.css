@@ -66,3 +66,24 @@
 /* Force compact badges even inside post image rules and flex layouts. */
 .social-meta button .mingle-name-badge,.social-reply-author .mingle-name-badge,.mingle-name-badge{display:inline-block!important;position:static!important;width:19px!important;height:19px!important;min-width:0!important;max-width:19px!important;max-height:19px!important;aspect-ratio:1!important;object-fit:contain!important;vertical-align:middle!important;margin:0 3px!important;flex:0 0 19px!important}
 .social-meta button,.social-reply-author{line-height:1.4}
+
+
+/* Mingle motion polish: compositor-friendly, lightweight and reduced-motion aware. */
+.mingle-page-transition{min-width:0;will-change:opacity,transform}
+.nav-item,.primary,.secondary,.icon-button,.theme-choice,.side-card button,.mg-toolbar button,.mg-group,.mingle-mobile-tabs button{
+ transition:background-color .2s ease,color .2s ease,border-color .2s ease,box-shadow .22s ease,transform .2s cubic-bezier(.2,.75,.3,1),filter .2s ease;
+}
+@media(hover:hover) and (pointer:fine){
+ .primary:not(:disabled):hover,.secondary:not(:disabled):hover{transform:translateY(-2px)}
+ .nav-item:hover,.mg-group:hover{transform:translateX(2px)}
+ .icon-button:not(:disabled):hover,.mg-toolbar button:not(:disabled):hover{transform:scale(1.06)}
+ .side-card button:hover{transform:translateY(-1px)}
+}
+.primary:not(:disabled):active,.secondary:not(:disabled):active,.icon-button:not(:disabled):active,.nav-item:active,.mg-toolbar button:active,.mingle-mobile-tabs button:active{transform:scale(.96);transition-duration:.09s}
+.nav-unread-badge,.mg-unread-badge{animation:mingle-badge-pop .26s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes mingle-badge-pop{from{transform:scale(.75);opacity:.5}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){
+ .mingle-page-transition{animation:none!important;transform:none!important}
+ .nav-item,.primary,.secondary,.icon-button,.theme-choice,.side-card button,.mg-toolbar button,.mg-group,.mingle-mobile-tabs button{transition:none!important;transform:none!important}
+ .nav-unread-badge,.mg-unread-badge{animation:none!important}
+}
