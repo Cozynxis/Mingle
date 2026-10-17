@@ -16,9 +16,9 @@ Deno.serve(async req=>{
  const secret=Deno.env.get("MINGLE_PUSH_WEBHOOK_SECRET");
  const serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
  const providedSecret=req.headers.get("x-mingle-webhook-secret");
- const bearer=req.headers.get("authorization")?.replace(/^Bearer\\s+/i,"");
+ const serviceBearer=req.headers.get("authorization")?.replace(/^Bearer\s+/i,"");
  const webhookAuthenticated=Boolean(secret&&providedSecret===secret);
- const serviceAuthenticated=Boolean(serviceKey&&bearer===serviceKey);
+ const serviceAuthenticated=Boolean(serviceKey&&serviceBearer===serviceKey);
  if(!webhookAuthenticated&&!serviceAuthenticated)return response({error:"Unauthorized",reason:!secret?"webhook_secret_missing":!providedSecret?"webhook_header_missing":"webhook_secret_mismatch"},401);
  const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),firebase=Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
  if(!url||!key||!firebase)return response({error:"Missing server secrets"},503);
