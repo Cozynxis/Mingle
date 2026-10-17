@@ -122,3 +122,5 @@ jobs:
           retention-days: 30
 
 # Refresh APK: responsive group chat, emoji, polls, voice and attachments.
+
+# Rebuild after fixing TypeScript unused imports and group media rendering.
