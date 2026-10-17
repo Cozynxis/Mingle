@@ -124,3 +124,5 @@ jobs:
 # Refresh APK: responsive group chat, emoji, polls, voice and attachments.
 
 # Rebuild after fixing TypeScript unused imports and group media rendering.
+
+# Rebuild Android: admin-only group deletion with confirmation.
