@@ -128,3 +128,5 @@ jobs:
 # Rebuild Android: admin-only group deletion with confirmation.
 
 # Rebuild Android for group location sharing UI.
+
+# Rebuild Android for group message actions and map updates.
