@@ -126,3 +126,5 @@ jobs:
 # Rebuild after fixing TypeScript unused imports and group media rendering.
 
 # Rebuild Android: admin-only group deletion with confirmation.
+
+# Rebuild Android for group location sharing UI.
