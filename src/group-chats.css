@@ -17,3 +17,13 @@
 .mg-unread-badge{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:#a36eff;color:#fff;font-weight:750;font-size:11px;flex-shrink:0}.mg-group>.mg-unread-badge{margin-left:auto}.mg-mention{color:#70baff;font-weight:750;background:#2985ff18;border-radius:4px;padding:0 2px}.mg-compose-entry{position:relative;min-width:0;flex:1;display:flex}.mg-compose-entry>input{width:100%;min-width:0}.mg-mention-suggestions{position:absolute;bottom:calc(100% + 8px);left:0;right:0;max-height:230px;overflow:auto;background:#1d1a2d;border:1px solid #6b5688;box-shadow:0 10px 35px #0009;border-radius:12px;padding:5px;z-index:30}.mg-mention-suggestions button{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:10px;border-radius:8px}.mg-mention-suggestions button:hover,.mg-mention-suggestions button:focus{background:#3b3153}.mg-mention-suggestions button strong{color:#80bfff}.mg-mention-suggestions button small{color:#aaa2b9}@media(max-width:650px){.mg-mention-suggestions{max-height:180px}}
 
 .mg-typing-indicator{font-size:12px;color:#c4a7f2;padding:7px 12px;font-style:italic;animation:mg-typing-pulse 1.5s ease-in-out infinite}@keyframes mg-typing-pulse{50%{opacity:.55}}
+
+
+/* Keep the group composer and last messages clear of Android bottom navigation. */
+@media(max-width:560px){
+ .mg-shell{height:calc(100dvh - 184px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:0;max-height:none}
+ .mg-main,.mg-feed{min-height:0}
+ .mg-feed{overscroll-behavior:contain}
+ .mg-compose{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+ .mg-modal{max-height:calc(100dvh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto}
+}
