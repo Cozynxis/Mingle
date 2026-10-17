@@ -21,6 +21,7 @@ export function Messages({session}:{session:Session}){
  const me=session.user.id;
  const [groupsOpen,setGroupsOpen]=useState(false);
  const [groupUnread,setGroupUnread]=useState<Record<string,number>>({});
+ const previousGroupUnread=useRef<Record<string,number>|null>(null);
  const totalGroupUnread=Object.values(groupUnread).reduce((sum,n)=>sum+n,0);
  const [allowGroupInvites,setAllowGroupInvites]=useState(true);
  const [emojiCategory,setEmojiCategory]=useState("Gezichten"),[emojiSearch,setEmojiSearch]=useState("");const [connections,setConnections]=useState<Connection[]>([]),[people,setPeople]=useState<Record<string,Person>>({}),[active,setActive]=useState<string|null>(null),[messages,setMessages]=useState<Message[]>([]),[showFind,setShowFind]=useState(false),[search,setSearch]=useState(""),[results,setResults]=useState<Person[]>([]),[body,setBody]=useState(""),[emoji,setEmoji]=useState(false),[file,setFile]=useState<File|null>(null),[sending,setSending]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[settings,setSettings]=useState(false),[allowMessages,setAllowMessages]=useState(true),[showMenu,setShowMenu]=useState(false),[fileUrls,setFileUrls]=useState<Record<string,string>>({});
@@ -42,7 +43,7 @@ export function Messages({session}:{session:Session}){
  const current=connections.find(c=>c.id===active);
  const other=current?(current.requester_id===me?current.recipient_id:current.requester_id):null;
  const friend=other?people[other]:null;
- const refreshGroupUnread=useCallback(async()=>{if(!supabase)return;const {data}=await supabase.rpc("mingle_group_unread");if(data)setGroupUnread(Object.fromEntries((data as {group_id:string;unread_count:number}[]).map(x=>[x.group_id,Number(x.unread_count)])))},[]);
+ const refreshGroupUnread=useCallback(async()=>{if(!supabase)return;const {data}=await supabase.rpc("mingle_group_unread");if(data){const counts=Object.fromEntries((data as {group_id:string;unread_count:number}[]).map(x=>[x.group_id,Number(x.unread_count)]));if(previousGroupUnread.current&&Object.entries(counts).some(([id,count])=>count>(previousGroupUnread.current?.[id]||0))&&!document.hidden)void playSound("message");previousGroupUnread.current=counts;setGroupUnread(counts)}},[]);
  useEffect(()=>{void refreshGroupUnread();const timer=setInterval(()=>{if(!document.hidden)void refreshGroupUnread()},4000);const onChange=(e:Event)=>setGroupUnread((e as CustomEvent<Record<string,number>>).detail);window.addEventListener("mingle-group-unread",onChange);return()=>{clearInterval(timer);window.removeEventListener("mingle-group-unread",onChange)}},[refreshGroupUnread]);
  const refreshUnread=useCallback(async()=>{if(!supabase)return;const {data}=await supabase.rpc("dm_unread_counts");if(data)setUnreadCounts(Object.fromEntries((data as {connection_id:string;unread_count:number}[]).map(x=>[x.connection_id,Number(x.unread_count)])))},[]);
  useEffect(()=>{void refreshUnread();const timer=setInterval(()=>{void refreshUnread()},4000);return()=>clearInterval(timer)},[refreshUnread]);
