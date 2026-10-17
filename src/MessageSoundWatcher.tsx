@@ -8,13 +8,15 @@ export function MessageSoundWatcher({userId,page}:{userId:string;page:string}){
   if(!supabase)return;
   let alive=true,initialized=false,checking=false;
   const seen=new Set<string>();
+  const groupSeen=new Set<string>();
+  let groupInitialized=false;
   const poll=async()=>{
    if(!alive||checking||document.hidden)return;
    checking=true;
    try{
     const {data:connections}=await supabase!.from("dm_connections").select("id").eq("status","accepted").or("requester_id.eq."+userId+",recipient_id.eq."+userId);
     const ids=(connections||[]).map(c=>c.id);
-    if(!ids.length)return;
+    if(!ids.length){initialized=true;return;}
     const {data}=await supabase!.from("dm_messages").select("id,sender_id,created_at").in("connection_id",ids).order("created_at",{ascending:false}).limit(35);
     if(!alive||!data)return;
     const newIncoming=data.filter(m=>!seen.has(m.id)&&m.sender_id!==userId);
@@ -24,8 +26,20 @@ export function MessageSoundWatcher({userId,page}:{userId:string;page:string}){
     initialized=true;
    }finally{checking=false}
   };
-  void poll();
-  const timer=window.setInterval(()=>{void poll()},3500);
+  const pollGroups=async()=>{
+   if(!alive||document.hidden||pageRef.current==="Messages")return;
+   const {data:members}=await supabase!.from("mingle_group_members").select("group_id").eq("user_id",userId);
+   const ids=(members||[]).map(m=>m.group_id);
+   if(!ids.length){groupInitialized=true;return}
+   const {data}=await supabase!.from("mingle_group_messages").select("id,sender_id,created_at").in("group_id",ids).order("created_at",{ascending:false}).limit(80);
+   if(!alive||!data)return;
+   if(groupInitialized&&data.some(m=>!groupSeen.has(m.id)&&m.sender_id!==userId))void playSound("notificationOff");
+   data.forEach(m=>groupSeen.add(m.id));
+   if(groupSeen.size>500){groupSeen.clear();data.forEach(m=>groupSeen.add(m.id))}
+   groupInitialized=true;
+  };
+  void poll();void pollGroups();
+  const timer=window.setInterval(()=>{void poll();void pollGroups()},3500);
   return()=>{alive=false;clearInterval(timer)}
  },[userId]);
  return null;
