@@ -96,19 +96,23 @@ function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;
     catch(e){setError(e instanceof Error?e.message:"Opnieuw versturen is niet gelukt.")}
     finally{setResending(false)}
   }
-  async function google(){
+  async function socialLogin(provider:"google"|"facebook"){
     if(!supabase){setError("De verbinding met Supabase ontbreekt.");return}
-    setError("");
-    const android=Capacitor.isNativePlatform()&&Capacitor.getPlatform()==="android";
-    const {data,error}=await supabase.auth.signInWithOAuth({provider:"google",options:{
-      redirectTo:android?"mingle://auth/callback":redirectTo,
-      skipBrowserRedirect:android,
-    }});
-    if(error){setError(error.message);return}
-    if(android&&data.url){
-      try{await Browser.open({url:data.url})}
-      catch(e){setError(e instanceof Error?e.message:"Google-aanmelding kon niet worden geopend.")}
-    }
+    setError("");setBusy(true);
+    try{
+      const android=Capacitor.isNativePlatform()&&Capacitor.getPlatform()==="android";
+      const {data,error}=await supabase.auth.signInWithOAuth({provider,options:{
+        redirectTo:android?"mingle://auth/callback":redirectTo,
+        skipBrowserRedirect:android,
+      }});
+      if(error)throw error;
+      if(android&&data.url)await Browser.open({url:data.url});
+    }catch(e){
+      const message=e instanceof Error?e.message:"Aanmelden is niet gelukt.";
+      setError(provider==="facebook"&&/provider is not enabled|unsupported provider|provider not enabled/i.test(message)
+        ?"Facebook Login moet nog worden ingeschakeld in Supabase met de Meta App ID en App Secret."
+        :message);
+    }finally{setBusy(false)}
   }
   return <div className="overlay" role="presentation"><motion.section initial={{opacity:0,y:22,scale:.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:.28}} className="auth-modal" role="dialog" aria-modal="true" aria-label="Mingle account">
     <div className="auth-brand"><Brand/><span className="auth-eyebrow">CONNECT · SHARE · DISCOVER</span></div>
@@ -133,7 +137,7 @@ function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;
         {success&&<p className="success" role="status">{success}</p>}
         <button disabled={busy} className="primary wide" type="submit">{busy?"Even wachten...":mode==="login"?"Inloggen":mode==="signup"?"Account aanmaken":"Herstellink versturen"} <ArrowRight size={17}/></button>
       </form>
-      {mode!=="reset"&&<div className="auth-providers"><div className="auth-providers-heading"><span>Overige aanmeldopties</span></div><div className="auth-provider-grid"><button type="button" className="auth-provider-tile" disabled={busy} onClick={google} aria-label="Aanmelden met Google" title="Aanmelden met Google"><img src="/google-logo.svg" alt="" width="28" height="28"/></button></div></div>}
+      {mode!=="reset"&&<div className="auth-providers"><div className="auth-providers-heading"><span>Overige aanmeldopties</span></div><div className="auth-provider-grid"><button type="button" className="auth-provider-tile" disabled={busy} onClick={()=>void socialLogin("google")} aria-label="Aanmelden met Google" title="Aanmelden met Google"><img src="/google-logo.svg" alt="" width="28" height="28"/></button><button type="button" className="auth-provider-tile" disabled={busy} onClick={()=>void socialLogin("facebook")} aria-label="Aanmelden met Facebook" title="Aanmelden met Facebook" style={{color:"#1877F2",fontWeight:800,fontSize:25}}><span aria-hidden="true" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:28,height:28,borderRadius:7,background:"#1877F2",color:"white",fontFamily:"Arial,sans-serif",fontSize:24,fontWeight:700}}>f</span></button></div></div>}
       <div className="auth-links">{mode==="login"?<><button onClick={()=>changeMode("signup")}>Nog geen account? Registreren</button><button onClick={()=>changeMode("reset")}>Wachtwoord vergeten?</button></>:<button onClick={()=>changeMode("login")}>Terug naar inloggen</button>}</div>
     </>}
   </motion.section></div>
