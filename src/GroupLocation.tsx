@@ -13,11 +13,11 @@ export function GroupLocation({groupId,me,onClose}:{groupId:string;me:string;onC
  const watch=useRef<number|null>(null);
  const current=useRef<string|null>(null);
  const stopWatch=()=>{if(watch.current!==null){navigator.geolocation.clearWatch(watch.current);watch.current=null}};
- const load=useCallback(async()=>{if(!supabase)return;const {data}=await supabase.from("mingle_group_locations").select("id,user_id,latitude,longitude,expires_at,updated_at").eq("group_id",groupId).gt("expires_at",new Date().toISOString()).eq("active",true);if(data)setLocations(data)},[groupId]);
+ const load=useCallback(async()=>{if(!supabase)return;const {data}=await supabase.from("mingle_group_locations").select("id,user_id,latitude,longitude,expires_at,updated_at").eq("group_id",groupId).gt("expires_at",new Date().toISOString()).eq("active",true);if(data){setLocations(data);if(!current.current){const mine=data.find(x=>x.user_id===me);if(mine)setSharing(mine.id)}}},[groupId,me]);
  useEffect(()=>{void load();const timer=setInterval(()=>void load(),12000);return()=>clearInterval(timer)},[load]);
  useEffect(()=>()=>{stopWatch()},[]);
  useEffect(()=>{current.current=sharing},[sharing]);
- async function stop(){stopWatch();const id=current.current;current.current=null;setSharing(null);if(id&&supabase){const {error:e}=await supabase.rpc("mingle_group_location_stop",{loc:id});if(e)setError(e.message)}void load()}
+ async function stop(){stopWatch();const id=current.current;current.current=null;setSharing(null);if((id||locations.some(x=>x.user_id===me))&&supabase){const {error:e}=await supabase.rpc("mingle_group_location_stop",{loc:id||locations.find(x=>x.user_id===me)?.id});if(e)setError(e.message)}void load()}
  async function start(){if(!supabase||!navigator.geolocation||working)return;setWorking(true);setError("");try{
   const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,timeout:15000,maximumAge:30000}));
   const {data,error:e}=await supabase.rpc("mingle_group_location_start",{g:groupId,lat:position.coords.latitude,lon:position.coords.longitude,minutes:mode==="once"?15:duration});
@@ -33,6 +33,6 @@ export function GroupLocation({groupId,me,onClose}:{groupId:string;me:string;onC
  <button className="mgl-primary" disabled={working} onClick={()=>void start()}><MapPin size={17}/>{working?"Locatie opvragen...":"Locatie delen starten"}</button></>:<div className="mgl-sharing"><strong><Radio size={16}/> Je deelt je live locatie</strong><button onClick={()=>void stop()}><Square size={14}/> Stop met delen</button></div>}
  {error&&<p className="mgl-error" role="alert">{error}</p>}
  <h4>Actieve locaties in deze groep</h4><div className="mgl-list">{locations.length===0?<p className="mgl-note">Er deelt momenteel niemand een locatie.</p>:locations.map(l=><div key={l.id} className="mgl-item"><span><MapPin size={16}/> {l.user_id===me?"Jouw locatie":"Groepslid"}<small>Bijgewerkt: {new Date(l.updated_at).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}</small></span><a href={`https://www.openstreetmap.org/?mlat=${l.latitude}&mlon=${l.longitude}#map=15/${l.latitude}/${l.longitude}`} target="_blank" rel="noopener noreferrer">Bekijk kaart ↗</a></div>)}</div>
- <p className="mgl-note">Sluit je dit venster tijdens live delen, dan blijft de deelsessie zichtbaar tot de eindtijd, maar stoppen de updates. Open de locatie-app opnieuw om de status te bekijken.</p>
+ <p className="mgl-note">Als je dit venster sluit, stoppen live updates. Een bestaande deelsessie kun je hier opnieuw openen en stoppen.</p>
  </section></div>
 }
