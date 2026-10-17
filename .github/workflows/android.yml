@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.3: Include group invitations, accept/decline and privacy toggle.
+# Mingle v2.0.3: Add group icon uploads and DM invite privacy setting.
 on:
   workflow_dispatch:
   push:
