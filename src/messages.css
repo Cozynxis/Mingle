@@ -103,3 +103,13 @@
 .dm-color-options{display:flex;flex-wrap:wrap;gap:7px;padding:8px;max-width:220px}
 .dm-color-options button{width:27px;height:27px;border-radius:50%;border:2px solid #ffffff55;padding:0;cursor:pointer}
 .dm-color-options button:hover{transform:scale(1.1)}
+
+
+/* Fit the conversation above the persistent mobile tabs and system gesture bar. */
+@media(max-width:560px){
+ .dm-shell{height:calc(100dvh - 176px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:0;max-height:none}
+ .dm-chat,.dm-sidebar{min-height:0}
+ .dm-messages{min-height:0;overscroll-behavior:contain}
+ .dm-composer{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+ .dm-modal{max-height:calc(100dvh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto}
+}
