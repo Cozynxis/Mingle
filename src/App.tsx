@@ -139,6 +139,7 @@ function Auth({onClose,recoveryMode=false,onRecoveryComplete}:{onClose:()=>void;
       </form>
       {mode!=="reset"&&<div className="auth-providers"><div className="auth-providers-heading"><span>Overige aanmeldopties</span></div><div className="auth-provider-grid"><button type="button" className="auth-provider-tile" disabled={busy} onClick={()=>void socialLogin("google")} aria-label="Aanmelden met Google" title="Aanmelden met Google"><img src="/google-logo.svg" alt="" width="28" height="28"/></button><button type="button" className="auth-provider-tile" disabled={busy} onClick={()=>void socialLogin("facebook")} aria-label="Aanmelden met Facebook" title="Aanmelden met Facebook" style={{color:"#1877F2",fontWeight:800,fontSize:25}}><img src="/facebook-logo.svg" alt="" width="28" height="28" style={{display:"block"}}/></button></div></div>}
       <div className="auth-links">{mode==="login"?<><button onClick={()=>changeMode("signup")}>Nog geen account? Registreren</button><button onClick={()=>changeMode("reset")}>Wachtwoord vergeten?</button></>:<button onClick={()=>changeMode("login")}>Terug naar inloggen</button>}</div>
+      <p style={{textAlign:"center",fontSize:11,opacity:.58,margin:"16px 0 0",letterSpacing:".01em"}}>Inloggen mogelijk met Google en Facebook (Meta)</p>
     </>}
   </motion.section></div>
 }
