@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.3: Include new group chats and polls in Android build.
+# Mingle v2.0.3: Include group invitations, accept/decline and privacy toggle.
 on:
   workflow_dispatch:
   push:
