@@ -1,5 +1,5 @@
 name: Build Mingle Android APK
-# Mingle v2.0.3: Redesigned group creation, live member search and group settings.
+# Mingle v2.0.4: Redesigned group creation, live member search and group settings.
 on:
   workflow_dispatch:
   push:
@@ -101,10 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v2.0.3 >/dev/null 2>&1; then
-            gh release upload v2.0.3 android/app/build/outputs/apk/release/app-release.apk --clobber
+          if gh release view v2.0.4 >/dev/null 2>&1; then
+            gh release upload v2.0.4 android/app/build/outputs/apk/release/app-release.apk --clobber
           else
-            gh release create v2.0.3 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.3" --notes "Support Center in More menu: create and reply to tickets, active/closed ticket folders, improved mobile layout and navigation."
+            gh release create v2.0.4 android/app/build/outputs/apk/release/app-release.apk --title "Mingle Android 2.0.4" --notes "Group chat typing indicators, unread message badges, group notifications, automatic scroll to latest messages, mentions, voice and message actions."
           fi
       - name: Build installable test APK
         if: steps.signing.outputs.ready != 'true'
